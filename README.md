@@ -24,7 +24,6 @@ To run the scripts in this repository, the following software is required:
     - pbapply >=
     - optparse >=
     - caret >=
-    - forcats >=
 Additionally, the following software should be located in your $PATH:
 - mafft >= 7.3.10
 - FastTree >= 2.1.9
