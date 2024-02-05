@@ -40,13 +40,14 @@ def compile_taxonomy(headers, taxonomy):
         new_head = '-'.join([contig_accno, taxonomy[assembly_accno]['species'].replace(' ', '_')])
 
         df.loc[len(df)] = {'ID': new_head,
-                'superkingdom': taxonomy[assembly_accno]['superkingdom'], 
-                'phylum': taxonomy[assembly_accno]['phylum'],  
-                'class': taxonomy[assembly_accno]['class'], 
-                'order': taxonomy[assembly_accno]['order'], 
-                'family': taxonomy[assembly_accno]['family'], 
-                'genus': taxonomy[assembly_accno]['genus'], 
-                'species': taxonomy[assembly_accno]['species']}
+                           'superkingdom': taxonomy[assembly_accno]['superkingdom'], 
+                           'phylum': taxonomy[assembly_accno]['phylum'],  
+                           'class': taxonomy[assembly_accno]['class'], 
+                           'order': taxonomy[assembly_accno]['order'], 
+                           'family': taxonomy[assembly_accno]['family'], 
+                           'genus': taxonomy[assembly_accno]['genus'], 
+                           'species': taxonomy[assembly_accno]['species']}
+    
     time.sleep(0.1)
     bar.update(i)
 
