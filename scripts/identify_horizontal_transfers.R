@@ -22,6 +22,7 @@ library(phangorn)
 library(Dict)
 library(utils)
 library(ggnewscale)
+library(optparse)
 suppressMessages(library(ggtree))
 suppressMessages(library(ape))
 suppressMessages(library(data.table))
@@ -30,7 +31,29 @@ suppressMessages(library(viridis))
 suppressMessages(library(tidyr))
 
 #-------------------------------------------------------------------------------
-# 1 DEFINE FUNCTIONS
+# 1 INPUT ARUGMENTS
+#-------------------------------------------------------------------------------
+option_list <- list(
+  make_option(c("-i", "--input"), type = "character", default = NULL,
+              help = "Input file name", metavar = "character"),
+  make_option(c("-t", "--taxonomy"), type = "character", default = NULL,
+              help = "Host taxonomy table", metavar = "character"),
+  make_option(c("-d", "--directory"), type = "character", default = NULL,
+              help = "Directory name", metavar = "character"),
+  make_option(c("-o", "--output"), type = "character", default = NULL,
+              help = "Output file name", metavar = "character")
+)
+ 
+opt_parser <- OptionParser(option_list=option_list)
+opt <- parse_args(opt_parser)
+
+if (is.null(opt$input) | is.null(opt$taxonomy) | is.null(opt$directory) | is.null(opt$output)) {
+  print_help(opt_parser)
+  stop("ERROR: Missing input argument(s)", call. = FALSE)
+}
+
+#-------------------------------------------------------------------------------
+# 2 DEFINE FUNCTIONS
 #-------------------------------------------------------------------------------
 select.tip.or.node <- function(element, tree) {
   ifelse(element < Ntip(tree) + 1, tree$tip.label[element], tree$node.label[element - Ntip(tree)])
@@ -90,14 +113,13 @@ get.phylum <- function(query) {
 }
 
 #-------------------------------------------------------------------------------
-# 2 PREPROCESSING
+# 3 PREPROCESSING
 #-------------------------------------------------------------------------------
-directory_name <- system(paste("pwd | rev | cut -d '/' -f 1 | rev"), intern = TRUE)
-print(paste("Analyzing", directory_name))
+setwd(opt$directory)
 
-taxonomy_table <- read.table("host_taxonomy.txt", sep = "\t", stringsAsFactors = FALSE)
+taxonomy_table <- read.table(opt$taxonomy, sep = "\t", stringsAsFactors = FALSE)
 
-tree <- read.tree("tree_clustered.txt")
+tree <- read.tree(opt$input)
 tree <- makeNodeLabel(tree)
 
 leaves <- Dict$new(
@@ -138,7 +160,7 @@ event_nodes <- c()
 nodes_to_color <- c()
 
 #-------------------------------------------------------------------------------
-# 3 SEARCH FOR HORIZONTAL TRANSFERS
+# 4 SEARCH FOR HORIZONTAL TRANSFERS
 #-------------------------------------------------------------------------------
 # This loop will traverse the phylogenetic tree, examining each position in turn
 # looking for horizontally transferred genes. To classify a horizontal transfer,
@@ -322,7 +344,7 @@ close(pb)
 print(paste("Finished searching, time elapsed:", time_diff, "min"))
 
 #-------------------------------------------------------------------------------
-# 4 POST-PROCESSING AND EXPORTING RESULTS
+# 5 POST-PROCESSING AND EXPORTING RESULTS
 #-------------------------------------------------------------------------------
 # Remove any nested transfers that were previously missed
 results_adj <- data.frame(matrix(ncol = 5))
@@ -346,10 +368,10 @@ for (i in 1:length(event_nodes)) {
 }
 
 print(paste("A total of", nrow(results_adj), "HGT events were identified"))
-write.table(results_adj, "horizonal_transfers.txt", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(results_adj, opt$output, sep = "\t", quote = FALSE, row.names = FALSE)
 
 #-------------------------------------------------------------------------------
-# 5 PLOT TREE
+# 6 PLOT TREE
 #-------------------------------------------------------------------------------
 nodes_to_color <- unique(nodes_to_color)
 nodes_to_color <- c(nodes_to_color, unique(edge_table[edge_table$parent_label %in% results_adj$Node,1]))
