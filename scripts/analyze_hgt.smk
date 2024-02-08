@@ -37,7 +37,8 @@ def extract_sequences(header_subset, fasta_subset, header_complete, fasta_comple
 rule all:
     input:
         #expand('{dir}/tree_clustered.txt', dir=DIR)
-        'observed_horizontal_transfers.txt'
+        'observed_horizontal_transfers.txt',
+        'null_distribution.txt'
 
 rule preprocessing:
     input:
@@ -55,7 +56,7 @@ rule preprocessing:
     shell:
         '''
         python ../scripts/preprocessing.py --nucleotides {input.nucleotides} --proteins {input.proteins} --taxonomy {output.taxonomy} --fasta_w_species {output.fasta_w_species} --clusters {output.clusters} --centroids {output.centroids} --alignment {output.alignment} --tree {output.tree} --blastout {output.blastout}
-        grep '>' {input.nuleotides} > {output.headerlines}
+        grep '>' {input.nucleotides} > {output.headerlines}
         '''
 
 rule identify_horizontal_transfers:
@@ -177,7 +178,7 @@ rule separate_genome_groups:
 
 rule gene_genome_5mer_distance:
     input:
-        dname = directory('separated_groups'),
+        dname = 'separated_groups',
         distr = 'genome_5mer_distance.txt'
     output:
         temp('gene_genome_5mer_distance.txt')
@@ -251,7 +252,7 @@ rule complete_hgt_table:
         gene_genome_dist = 'gene_genome_5mer_distance.txt',
         genome_size = 'genome_size_diff.txt',
         emp = 'cooccurrence_emp.txt',
-        gemc = 'cooccurrence_gwmc.txt',
+        gwmc = 'cooccurrence_gwmc.txt',
         gram_stain = 'gram_stain_diff.txt'
     output:
         'observed_horizontal_transfers.txt'
@@ -282,14 +283,14 @@ rule generate_null_distribution:
 
 rule complete_null_distribution:
     input:
-        table = 'null_table1.txt',,
+        table = 'null_table1.txt',
         genome_size = 'genome_size_diff_null.txt',
         emp = 'cooccurrence_emp_null.txt',
-        gemc = 'cooccurrence_gwmc_null.txt',
+        gwmc = 'cooccurrence_gwmc_null.txt',
         gram_stain = 'gram_stain_diff_null.txt'
     output:
         'null_distribution.txt'
     shell:
         '''
-        paste {input.table} {input.genome_dist} {input.gene_genome_dist} {input.genome_size} {input.gram_stain} {input.emp} {input.gwmc} > {output}
-
+        paste {input.table} {input.genome_size} {input.gram_stain} {input.emp} {input.gwmc} > {output}
+        '''
