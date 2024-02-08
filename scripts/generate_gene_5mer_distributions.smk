@@ -10,7 +10,7 @@ from Bio import SeqIO
 import numpy as np
 import pandas as pd
 
-DIR, = glob_wildcards('{dir}/nucleotides.fna')
+DIR, = glob_wildcards('separated_groups/{dir}/nucleotides.fna')
 
 #-------------------------------------------------------------------------------
 # 1 FUNCTIONS
@@ -36,13 +36,13 @@ def get_possible_kmers(k):
 #-------------------------------------------------------------------------------
 rule all:
     input:
-        expand('{dir}/5mer_distributions_gene.txt', dir=DIR)
+        expand('separated_groups/{dir}/5mer_distributions_gene.txt', dir=DIR)
 
 rule cluster_genes:
     input:
-        '{dir}/nucleotides.fna'
+        'separated_groups/{dir}/nucleotides.fna'
     output:
-        temp('{dir}/nucleotides_unique.fna')
+        temp('separated_groups/{dir}/nucleotides_unique.fna')
     shell:
         '''
         usearch -cluster_fast {input} -id 1 -centroids {output}
@@ -50,9 +50,9 @@ rule cluster_genes:
 
 rule generate_kmer_distributions:
     input:
-        '{dir}/nucleotides_unique.fna'
+        'separated_groups/{dir}/nucleotides_unique.fna'
     output:
-        '{dir}/5mer_distributions_gene.txt'
+        'separated_groups/{dir}/5mer_distributions_gene.txt'
     run:
         genes = SeqIO.to_dict(SeqIO.parse(input[0], 'fasta'))
         k = 5

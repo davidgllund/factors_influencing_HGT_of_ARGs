@@ -38,8 +38,8 @@ option_list <- list(
               help = "Input file name", metavar = "character"),
   make_option(c("-t", "--taxonomy"), type = "character", default = NULL,
               help = "Host taxonomy table", metavar = "character"),
-  make_option(c("-d", "--directory"), type = "character", default = NULL,
-              help = "Directory name", metavar = "character"),
+  make_option(c("-c", "--clusters"), type = "character", default = NULL,
+              help = "Cluster directory", metavar = "character"),
   make_option(c("-o", "--output"), type = "character", default = NULL,
               help = "Output file name", metavar = "character")
 )
@@ -47,7 +47,7 @@ option_list <- list(
 opt_parser <- OptionParser(option_list=option_list)
 opt <- parse_args(opt_parser)
 
-if (is.null(opt$input) | is.null(opt$taxonomy) | is.null(opt$directory) | is.null(opt$output)) {
+if (is.null(opt$input) | is.null(opt$taxonomy) | is.null(opt$clusters) | is.null(opt$output)) {
   print_help(opt_parser)
   stop("ERROR: Missing input argument(s)", call. = FALSE)
 }
@@ -115,9 +115,7 @@ get.phylum <- function(query) {
 #-------------------------------------------------------------------------------
 # 3 PREPROCESSING
 #-------------------------------------------------------------------------------
-setwd(opt$directory)
-
-taxonomy_table <- read.table(opt$taxonomy, sep = "\t", stringsAsFactors = FALSE)
+taxonomy_table <- read.table(opt$taxonomy, sep = "\t", stringsAsFactors = FALSE, header=TRUE)
 
 tree <- read.tree(opt$input)
 tree <- makeNodeLabel(tree)
@@ -127,14 +125,14 @@ leaves <- Dict$new(
   .overwite = TRUE
 )
 
-keys <- data.frame(V1 = system(paste("ls clusters"), intern = TRUE))
-leaves[as.character(keys$V1[1])] = system(paste('cat clusters/', as.character(keys$V1[1]), '/hidden.txt', sep = ''), intern = TRUE)
+keys <- data.frame(V1 = system(paste("ls", opt$clusters, sep = " "), intern = TRUE))
+leaves[as.character(keys$V1[1])] = system(paste('cat ',opt$clusters , '/', as.character(keys$V1[1]), '/hidden.txt', sep = ''), intern = TRUE)
 
 print("Preparing leaf dictionary")
 pb <- txtProgressBar(min = 0, max = length(keys$V1), initial = 0, style = 3)
 
 for (i in 1:length(keys$V1)) {
-  leaves[as.character(keys$V1[i])] = system(paste('cat clusters/', as.character(keys$V1[i]), '/hidden.txt', sep = ''), intern = TRUE)
+  leaves[as.character(keys$V1[i])] = system(paste('cat ', opt$clusters, '/', as.character(keys$V1[i]), '/hidden.txt', sep = ''), intern = TRUE)
   setTxtProgressBar(pb, i)
 }
 
@@ -336,7 +334,7 @@ for (i in 1:length(node_list)) {
     }
   }
   setTxtProgressBar(pb, i)
-}
+} 
 
 end_time <- Sys.time()
 time_diff <- difftime(end_time, start_time, unit = "mins")

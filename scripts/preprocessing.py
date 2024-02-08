@@ -1,3 +1,5 @@
+from sys import argv
+import argparse
 import os
 import subprocess
 import time
@@ -7,8 +9,35 @@ import pandas as pd
 
 import aux
 
-def restructure_headerlines(taxonomy):
-    s = os.popen('grep ">" predicted-orfs.fasta | tr -d ">"')
+def parse_args(argv):
+    desc = 'Generates files required to run "identify_horizontal_transfers.R"'
+    copyright = 'Copyright (c) David Lund 2023.'
+    parser = argparse.ArgumentParser(description=desc+'. '+copyright)
+    parser.add_argument('--nucleotides', required=True,
+                        help='Nucleotide multifasta produced by fARGene [INPUT].')
+    parser.add_argument('--proteins', required=True,
+                        help='Protein multifasta produced by fARGene [INPUT].')
+    parser.add_argument('--taxonomy', required=True,
+                        help='File containing taxonomy of bacterial hosts [OUTPUT].')
+    parser.add_argument('--fasta_w_species', required=True,
+                        help='Protein multifasta with host species included in the headers [OUTPUT].')
+    parser.add_argument('--clusters', required=True,
+                        help='Cluster directory [OUTPUT].')
+    parser.add_argument('--centroids', required=True,
+                        help='Centroid multifasta file [OUTPUT].')
+    parser.add_argument('--alignment', required=True,
+                        help='Multiple sequence alignment file [OUTPUT].')
+    parser.add_argument('--tree', required=True,
+                        help='Phylogenetic tree file [OUTPUT].')
+    parser.add_argument('--blastout', required=True,
+                        help='Blast output file [OUTPUT].')
+    
+    arguments = parser.parse_args()
+
+    return arguments
+
+def restructure_headerlines(taxonomy, arguments):
+    s = os.popen('grep ">" %s | tr -d ">"' %(arguments.nucleotides))
     headers = s.readlines()
 
     new_headers = []
@@ -27,7 +56,7 @@ def restructure_headerlines(taxonomy):
 
     return headers, new_headers
 
-def compile_taxonomy(headers, taxonomy):
+def compile_taxonomy(headers, taxonomy, arguments):
     print('Compiling taxonomy')
 
     df = pd.DataFrame(columns=['ID', 'superkingdom', 'phylum',  'class', 'order', 'family', 'genus', 'species'])
@@ -51,14 +80,14 @@ def compile_taxonomy(headers, taxonomy):
     time.sleep(0.1)
     bar.update(i)
 
-    df.to_csv('host_taxonomy.txt', sep = '\t', header = True, index = False)
+    df.to_csv(arguments.taxonomy, sep = '\t', header = True, index = False)
 
-def phylogenetic_analysis(new_headers):
+def phylogenetic_analysis(new_headers, arguments):
     print('Performing phylogenetic analysis')
 
     i = 0
 
-    with open('predicted-orfs-amino.fasta') as original_fasta, open('args_w_species.fasta', 'w') as corrected_fasta:
+    with open('%s' %(arguments.proteins)) as original_fasta, open('%s' %(arguments.fasta_w_species), 'w') as corrected_fasta:
         records = SeqIO.parse(original_fasta, 'fasta')
         for record in records:
             record.id = new_headers[i]
@@ -66,23 +95,24 @@ def phylogenetic_analysis(new_headers):
             i += 1
             SeqIO.write(record, corrected_fasta, 'fasta')
 
-    subprocess.run('usearch -cluster_fast args_w_species.fasta -id 1 -centroids args_clustered.fasta', shell=True)
-    subprocess.run('mafft args_clustered.fasta > alignment_clustered.aln', shell=True, check=False, capture_output=True)
-    subprocess.run('FastTree alignment_clustered.aln > tree_clustered.txt', shell=True)
+    subprocess.run('usearch -cluster_fast %s -id 1 -centroids %s' %(arguments.fasta_w_species, arguments.centroids), shell=True)
+    subprocess.run('mafft %s > %s' %(arguments.centroids, arguments.alignment), shell=True, check=False, capture_output=True)
+    subprocess.run('FastTree %s > %s' %(arguments.alignment, arguments.tree), shell=True)
 
-def generate_cluster_directory():
+def generate_cluster_directory(arguments):
     print('Generating cluster directory')
 
-    subprocess.run('mkdir clusters/', shell=True)
-    subprocess.run('usearch -cluster_fast args_w_species.fasta -id 1 -clusters clusters/c_', shell=True)
-    subprocess.run('for f in clusters/c*; do name=$(grep ">" $f | head -1 | tr -d ">"); mkdir clusters/$name; grep ">" $f | tr -d ">" > clusters/$name/hidden.txt; mv $f clusters/$name/$name.fna; done', shell=True)
+    subprocess.run('mkdir %s' %(arguments.clusters), shell=True)
+    subprocess.run('usearch -cluster_fast %s -id 1 -clusters %s/c_' %(arguments.fasta_w_species, arguments.clusters), shell=True)
+    subprocess.run('for f in %s/c*; do name=$(grep ">" $f | head -1 | tr -d ">"); mkdir %s/$name; grep ">" $f | tr -d ">" > %s/$name/hidden.txt; mv $f %s/$name/$name.fna; done' %(arguments.clusters, arguments.clusters, arguments.clusters, arguments.clusters), shell=True)
 
-def calc_sequence_similarity():
+def calc_sequence_similarity(arguments):
     print('Calculating sequence similarities')
 
-    subprocess.run('blastp -query args_clustered.fasta -db /home/dlund/index_files/card_db/card_proteins.fasta -out blastout.txt -max_target_seqs 1 -outfmt 6', shell=True)
+    subprocess.run('blastp -query %s -db /home/dlund/index_files/card_db/card_proteins.fasta -out %s -max_target_seqs 1 -outfmt 6' %(arguments.centroids, arguments.blastout), shell=True)
 
 def main():
+    arguments = parse_args(argv)
     
     taxonomy_index = {}
     with open('/home/dlund/index_files/assembly_id_w_full_taxonomy.txt') as f:
@@ -90,15 +120,15 @@ def main():
             adj = line.split('\t')
             taxonomy_index[adj[0]] = {'superkingdom': adj[1], 'phylum': adj[2],  'class': adj[3], 'order': adj[4], 'family': adj[5], 'genus': adj[6], 'species': adj[7].rstrip()}
 
-    headers, headers_adj = restructure_headerlines(taxonomy_index)
+    headers, headers_adj = restructure_headerlines(taxonomy_index, arguments)
     
-    compile_taxonomy(headers, taxonomy_index)
+    compile_taxonomy(headers, taxonomy_index, arguments)
 
-    phylogenetic_analysis(headers_adj)
+    phylogenetic_analysis(headers_adj, arguments)
     
-    generate_cluster_directory()
+    generate_cluster_directory(arguments)
 
-    calc_sequence_similarity()
+    calc_sequence_similarity(arguments)
 
 if __name__ == '__main__':
     main()
