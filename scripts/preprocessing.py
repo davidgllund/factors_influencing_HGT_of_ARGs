@@ -105,7 +105,7 @@ def generate_cluster_directory(arguments):
     subprocess.run('mkdir %s' %(arguments.clusters), shell=True)
     subprocess.run('usearch -cluster_fast %s -id 1 -clusters %s/c_' %(arguments.fasta_w_species, arguments.clusters), shell=True)
     subprocess.run('for f in %s/c*; do name=$(grep ">" $f | head -1 | tr -d ">"); mkdir %s/$name; grep ">" $f | tr -d ">" > %s/$name/hidden.txt; mv $f %s/$name/$name.fna; done' %(arguments.clusters, arguments.clusters, arguments.clusters, arguments.clusters), shell=True)
-    subprocess.run('while read line; do q=$(echo $line | cut -d "-" -f 1); grep $q %s/predicted-orfs.fasta | cut -d "_" -f -2 | tr -d ">" >> %s/$line/assembly_accessions.txt' %(arguments.clusters, arguments.clusters), shell=True)
+    subprocess.run('for d in %s/*; do up=$(echo %s | cut -d "/" -f -2); down=$(echo $d | rev | cut -d "/" -f 1 | rev); while read line; do q=$(echo $line | cut -d "-" -f 1); grep $q $up/predicted-orfs.fasta | cut -d "_" -f -2 | tr -d ">" >> %s/$down/assembly_accessions.txt; done<$d/hidden.txt; done' %(arguments.clusters, arguments.clusters, arguments.clusters), shell=True)
 
 def calc_sequence_similarity(arguments):
     print('Calculating sequence similarities')
