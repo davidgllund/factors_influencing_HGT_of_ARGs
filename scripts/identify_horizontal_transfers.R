@@ -14,19 +14,23 @@
 #-------------------------------------------------------------------------------
 # 0 LOAD LIBRARIES
 #-------------------------------------------------------------------------------
-library(taxonomizr)
-library(ggplot2)
-library(stringr)
-library(gtools)
-library(phangorn)
-library(Dict)
-library(utils)
-library(ggnewscale)
-library(optparse)
+if(!require(Dict)){
+    install.packages("Dict", repos='http://cran.us.r-project.org')
+}
+
+suppressMessages(library(taxonomizr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(stringr))
+suppressMessages(library(gtools))
+suppressMessages(library(phangorn))
+suppressMessages(library(Dict))
+suppressMessages(library(utils))
+suppressMessages(library(ggnewscale))
+suppressMessages(library(optparse))
+suppressMessages(library(dplyr))
 suppressMessages(library(ggtree))
 suppressMessages(library(ape))
 suppressMessages(library(data.table))
-suppressMessages(library(adephylo))
 suppressMessages(library(viridis))
 suppressMessages(library(tidyr))
 
@@ -40,6 +44,10 @@ option_list <- list(
               help = "Host taxonomy table", metavar = "character"),
   make_option(c("-c", "--clusters"), type = "character", default = NULL,
               help = "Cluster directory", metavar = "character"),
+  make_option(c("-b", "--blastout"), type = "character", default = NULL,
+              help = "Sequence identity file produced by BLAST", metavar = "character"),
+  make_option(c("--pdf"), type = "character", default = NULL,
+              help = "Name of produced PDF file", metavar = "character"),
   make_option(c("-o", "--output"), type = "character", default = NULL,
               help = "Output file name", metavar = "character")
 )
@@ -47,7 +55,7 @@ option_list <- list(
 opt_parser <- OptionParser(option_list=option_list)
 opt <- parse_args(opt_parser)
 
-if (is.null(opt$input) | is.null(opt$taxonomy) | is.null(opt$clusters) | is.null(opt$output)) {
+if (is.null(opt$input) | is.null(opt$taxonomy) | is.null(opt$clusters) | is.null(opt$blast) | is.null(opt$output)) {
   print_help(opt_parser)
   stop("ERROR: Missing input argument(s)", call. = FALSE)
 }
@@ -115,7 +123,7 @@ get.phylum <- function(query) {
 #-------------------------------------------------------------------------------
 # 3 PREPROCESSING
 #-------------------------------------------------------------------------------
-taxonomy_table <- read.table(opt$taxonomy, sep = "\t", stringsAsFactors = FALSE, header=TRUE)
+taxonomy_table <- read.table(opt$taxonomy, sep = "\t", stringsAsFactors = FALSE, header=TRUE) %>% `rownames<-`(.$ID) %>% subset(select = -c(ID))
 
 tree <- read.tree(opt$input)
 tree <- makeNodeLabel(tree)
@@ -236,7 +244,11 @@ for (i in 1:length(node_list)) {
 
     # Given that all direct descendants are nodes, skip if a recorded event
     # exists further down in the tree (to avoid nested events)
-    if ((sum(event_nodes %in% Descendants(tree, descendant_nodes[1], type = "all")) > 0 || sum(event_nodes %in% Descendants(tree, descendant_nodes[2], type = "all")) > 0) && sum(str_detect(leaf_ids, "Node")) == 2) {
+    if (length(intersect(descendant_nodes, event_nodes)) > 0) {
+      next
+    } 
+    
+    else if ((sum(event_nodes %in% Descendants(tree, descendant_nodes[1], type = "all")) > 0 || sum(event_nodes %in% Descendants(tree, descendant_nodes[2], type = "all")) > 0) && sum(str_detect(leaf_ids, "Node")) == 2) {
       next
     }
 
@@ -269,6 +281,18 @@ for (i in 1:length(node_list)) {
       # Skip if the two descendant groups represent the same order (one
       # order each)
       else if (length(unique(c(orders1, orders2))) == 1) {
+        next
+      }
+
+      # If the first descendant is a single leaf that includes only one order
+      # while the second descendant is a node with events recorded beolw, skip
+      else if (sum(event_nodes %in% Descendants(tree, descendant_nodes[1], type = "all")) > 0 && length(orders2) == 1) {
+        next
+      }
+
+      # If the second descendant is a single leaf that includes only one order
+      # while the first descendant is a node with events recorded beolw, skip
+      else if (sum(event_nodes %in% Descendants(tree, descendant_nodes[2], type = "all")) > 0 && length(orders1) == 1) {
         next
       }
       
@@ -314,7 +338,7 @@ for (i in 1:length(node_list)) {
 
         # If the second descendant is a single leaf, generate all possible
         # HGT events from this leaf
-        else if (length(Descendants(tree, Descendants(tree, edge_table[edge_table$parent_label == node_list[length(node_list) - i + 1], 1], type = "child")[[2]][2], type = "tips")[[1]]) == 1) {
+        else if (length(Descendants(tree, Descendants(tree, edge_table[edge_table$parent_label == node_list[length(node_list) - i + 1], 1], type = "child")[[1]][1], type = "tips")[[1]]) == 1) {
           possible_events <- resolve.multilevel.event(leaf_ids[2], leaves, orders2)
 
           for (j in 1:nrow(possible_events)) {
@@ -378,7 +402,7 @@ headers <- as.character(tree$tip.label)
 phylum_list <- sapply(headers, get.phylum)
 phylum_list <- as.data.frame(phylum_list)
 
-blastout <- read.table("blastout.txt", sep = "\t", stringsAsFactors = FALSE, comment.char = "", quote = "")
+blastout <- read.table(opt$blast, sep = "\t", stringsAsFactors = FALSE, comment.char = "", quote = "")
 blast_df <- data.frame(perc_id = blastout$V3)
 rownames(blast_df) <- blastout$V1
 
@@ -387,18 +411,18 @@ rownames(blast_df) <- headers
 
 p1 <- ggtree(tree, layout = "circular", branch.length = "none") +
   geom_tiplab(size = 0) +
-  geom_point2(aes(subset = (node %in% nodes_to_color)), color = "green", size = 1.5) +
-  geom_nodelab2(aes(subset = (node %in% nodes_to_color)), color = "green", size = 1.5)
+  geom_point2(aes(subset = (node %in% nodes_to_color)), color = "green", size = 1.5) 
 
-p2 <- gheatmap(p1, phylum_list, offset = -9.5, width = 0.2, color = NULL) +
+p2 <- gheatmap(p1, phylum_list, offset = -4, width = 0.2, color = NULL) +
   scale_fill_manual(values=c("#4daf4a", "#377eb8", "#ff7f00", "#984ea3", "#999999", "#e41a1c"), na.value="white", name = "Phylum")
 
 p3 <- p2 + new_scale_fill()
-p3 <- gheatmap(p3, blast_df, offset = 14, width = 0.2, color = NULL) +
+p3 <- gheatmap(p3, blast_df, offset = 8, width = 0.2, color = NULL) +
   scale_fill_viridis_c(direction = -1)
 
-pdf("tree_annotated.pdf", height = 10, width = 10)
+pdf(opt$pdf, height = 10, width = 10)
 plot(p3)
 dev.off()
 
 #-------------------------------------------------------------------------------
+

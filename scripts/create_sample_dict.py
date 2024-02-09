@@ -86,10 +86,10 @@ def calc_genome_kmer_distributions(cluster_data, k, file_path_dict, possible_kme
 
 def main():
     arguments = parse_args(argv)
-    taxpath = 'Taxonomy_info_namefix.txt'
+    taxpath = '%s/host_taxonomy.txt' %(arguments.gene_class)
     genomepaths = '/storage/dlund/HGT_inference_project/paths_taxonomy_check_ok_no_contam.txt'
     taxonomy, genome_file_paths, gene_file_paths = setup_dictionaries(taxpath, genomepaths, arguments.gene_class)
-    clusters = clusters = glob.glob('clusters' + '/*')
+    clusters = clusters = glob.glob('%s/clusters/*' %(arguments.gene_class))
     all_kmers = aux.generate_possible_kmers(5)
 
     sample_dict = {}
