@@ -9,12 +9,12 @@
 #-------------------------------------------------------------------------------
 # 0 LOAD LIBRARIES
 #-------------------------------------------------------------------------------
-library(caret)
-library(dplyr)
-library(forcats)
-library(data.table)
-library(Dict)
-library(optparse)
+suppressMessages(library(caret))
+suppressMessages(library(dplyr))
+suppressMessages(library(forcats))
+suppressMessages(library(data.table))
+suppressMessages(library(Dict))
+suppressMessages(library(optparse))
 
 #-------------------------------------------------------------------------------
 # 1 INPUT ARGUMENTS
@@ -36,19 +36,14 @@ if (is.null(opt$taxonomy) | is.null(opt$input) | is.null(opt$output)) {
   stop("ERROR: Missing input argument(s)", call. = FALSE)
 }
 
-
-args <- commandArgs(trailingOnly = TRUE)
-input_filename <- as.character(args[1])
-taxonomy_table <- as.character(args[2])
-output_filename <- as.character(args[3])
-
 #-------------------------------------------------------------------------------
 # 2 DEFINE FUNCTIONS
 #-------------------------------------------------------------------------------
 setup.dictionary <- function(path) {
-    table <- read.table(path, sep = "\t")
-    colnames(table) <- c("phylum", "class", "order")
-    table <- table[!is.na(table$class), ]
+    table <- read.table(path, sep = "\t", header=TRUE) %>% 
+    subset(select=c(phylum, class, order)) %>% 
+    unique() %>% 
+    .[!is.na(.$order), ]
 
     taxonomy <- Dict$new(
         token = 0,
@@ -58,6 +53,8 @@ setup.dictionary <- function(path) {
     for (i in seq_len(nrow(table))) {
         taxonomy[as.character(table$order[i])] = c(as.character(table$phylum[i]), as.character(table$class[i]))
     }
+
+    return(taxonomy)
 }
 
 measure.taxonomic.difference <- function(order1, order2, taxonomy) {
@@ -101,4 +98,6 @@ for (i in seq_len(nrow(horizontal_transfers))) {
     tax_level_diff[i] <- measure.taxonomic.difference(order1[i], order2[i], taxonomy)
 }
 
-write.table(tax_level_diff, opt$output, quote=FALSE, row.names=FALSE, col.names=FALSE)
+output <- c("Taxonomic difference", tax_level_diff)
+
+write.table(output, opt$output, quote=FALSE, row.names=FALSE, col.names=FALSE)

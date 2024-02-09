@@ -9,7 +9,6 @@ import random
 import time
 
 import pandas as pd
-import progressbar
 
 import aux
 
@@ -97,12 +96,11 @@ def find_antibiotic_class(gene_class):
 
 def combine_sample_dicts():
     combined_dict = {}
-    categories = glob.glob('*.hmm')
+    categories = [dir for dir in glob.glob("*") if os.path.isdir( dir)]
 
     for item in categories:
         gene_class = item.split('.')[0]
-        filename = '%s.pkl' % (gene_class)
-        path = '%s/%s' % (item, filename)
+        path = '%s/sample_dict.pkl' % (item)
 
         if os.path.isfile(path):
             with open(path, 'rb') as handle:
@@ -152,11 +150,11 @@ def main():
     taxonomy = read_taxonomy('/home/dlund/HGT_inference_project/analysis/updated_taxonomy/taxonomy_table.txt')
     combined_dict = combine_sample_dicts()
     df = setup_dataframe(combined_dict)
-    bar = aux.setup_progressbar(arguments.max_number)
+    bar = aux.setup_progressbar(int(arguments.max_number))
     
     null_data = []
 
-    for i in range(arguments.max_number):
+    for i in range(int(arguments.max_number)):
         key1 = random.sample(list(df.index), 1)
         data1, order1, species1, assembly_accession1 = extract_information(key1, combined_dict)
 

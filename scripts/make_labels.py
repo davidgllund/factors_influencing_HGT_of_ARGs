@@ -32,7 +32,6 @@ def main():
     with open(arguments.list, 'r') as file:
         list = file.readlines()
 
-
     labels = make_labels(list, arguments.word)
 
     stringToExport = str(arguments.header) + "\n"

@@ -6,7 +6,7 @@ import subprocess
 
 import pandas as pd
 
-DIR, = glob_wildcards('{dir}/predicted-orfs-amino.fasta')
+DIR, = glob_wildcards('example_data/{dir}/predicted-orfs-amino.fasta')
 
 #-------------------------------------------------------------------------------
 # 1 FUNCTIONS
@@ -42,62 +42,73 @@ rule all:
 
 rule preprocessing:
     input:
-        nucleotides = '{dir}/predicted-orfs.fasta',
-        proteins = '{dir}/predicted-orfs-amino.fasta'
+        nucleotides = 'example_data/{dir}/predicted-orfs.fasta',
+        proteins = 'example_data/{dir}/predicted-orfs-amino.fasta'
     output:
-        taxonomy = '{dir}/host_taxonomy.txt',
-        fasta_w_species = '{dir}/args_w_species.fasta',
-        clusters = directory('{dir}/clusters'),
-        centroids = '{dir}/args_clustered.fasta',
-        alignment = '{dir}/alignment_clustered.aln',
-        tree = '{dir}/tree_clustered.txt',
-        blastout = '{dir}/blastout.txt',
-        headerlines = '{dir}/fasta_headers.txt'
+        taxonomy = 'example_data/{dir}/host_taxonomy.txt',
+        fasta_w_species = 'example_data/{dir}/args_w_species.fasta',
+        clusters = directory('example_data/{dir}/clusters'),
+        centroids = 'example_data/{dir}/args_clustered.fasta',
+        alignment = 'example_data/{dir}/alignment_clustered.aln',
+        tree = 'example_data/{dir}/tree_clustered.txt',
+        blastout = 'example_data/{dir}/blastout.txt',
+        headerlines = 'example_data/{dir}/fasta_headers.txt'
     shell:
         '''
-        python ../scripts/preprocessing.py --nucleotides {input.nucleotides} --proteins {input.proteins} --taxonomy {output.taxonomy} --fasta_w_species {output.fasta_w_species} --clusters {output.clusters} --centroids {output.centroids} --alignment {output.alignment} --tree {output.tree} --blastout {output.blastout}
+        python scripts/preprocessing.py --nucleotides {input.nucleotides} --proteins {input.proteins} --taxonomy {output.taxonomy} --fasta_w_species {output.fasta_w_species} --clusters {output.clusters} --centroids {output.centroids} --alignment {output.alignment} --tree {output.tree} --blastout {output.blastout}
         grep '>' {input.nucleotides} > {output.headerlines}
         '''
 
 rule identify_horizontal_transfers:
     input:
-        tree = '{dir}/tree_clustered.txt',
-        taxonomy = '{dir}/host_taxonomy.txt',
-        clusters = '{dir}/clusters'
+        tree = 'example_data/{dir}/tree_clustered.txt',
+        taxonomy = 'example_data/{dir}/host_taxonomy.txt',
+        clusters = 'example_data/{dir}/clusters',
+        blast = 'example_data/{dir}/blastout.txt'
     output:
-        '{dir}/observed_hgt.txt'
+        table = 'example_data/{dir}/observed_hgt.txt',
+        pdf = 'example_data/{dir}/tree_annotated.pdf'
     conda:
         '../envs/arg_hgt_R.yml'
     shell:
         '''
-        Rscript ../scripts/identify_horizontal_transfers.R --input {input.tree} --taxonomy {input.taxonomy} --clusters {input.clusters} --output {output}
+        Rscript scripts/identify_horizontal_transfers.R --input {input.tree} --taxonomy {input.taxonomy} --clusters {input.clusters} --blast {input.blast} --pdf {output.pdf} --output {output.table}
+        '''
+
+rule calc_taxonomic_distance:
+    input:
+        table = 'example_data/{dir}/observed_hgt.txt',
+        taxonomy = 'example_data/{dir}/host_taxonomy.txt'
+    output:
+        tdist = temp('example_data/{dir}/taxonomic_distance.txt')
+    conda:
+        '../envs/arg_hgt_R.yml'
+    shell:
+        '''
+        Rscript scripts/taxonomic_difference.R --taxonomy {input.taxonomy} --input {input.table} --output {output.tdist}
         '''
 
 rule add_labels:
     input:
-        table = '{dir}/observed_hgt.txt',
-        taxonomy = '{dir}/host_taxonomy.txt',
-        cl = '{dir}'
+        table = 'example_data/{dir}/observed_hgt.txt',
+        tdist = 'example_data/{dir}/taxonomic_distance.txt',
+        cl = 'example_data/{dir}'
     output:
-        tdist = temp('{dir}/taxonomic_distance.txt'),
-        gclass = temp('{dir}/gene_class.txt'),
-        split1 = temp('{dir}/s1.txt'),
-        split2 = temp('{dir}/s2.txt'),
-        table = temp('{dir}/table_w_labels.txt')
-    conda:
-        '../envs/arg_hgt_R.yml'
+        gclass = temp('example_data/{dir}/gene_class.txt'),
+        split1 = temp('example_data/{dir}/s1.txt'),
+        split2 = temp('example_data/{dir}/s2.txt'),
+        table = temp('example_data/{dir}/table_w_labels.txt')
     shell:
         '''
-        Rscript ../scripts/taxonomic_difference.R --taxonomy {input.taxonomy} --input {input.table} --output {output.tdist}
-        python ../scripts/make_labels.py --list {input.table} --word {input.cl} --header "Gene class" --output {output.gclass}
+        python scripts/make_labels.py --list {input.table} --word {input.cl} --header "Gene class" --output {output.gclass}
         cat {input.table} | cut -f 1 > {output.split1}
         cat {input.table} | cut -f 2 > {output.split2}
-        paste {output.split1} {output.gclass} {output.tdist} {output.split2} | tail -n +2 > {output.table}
+        paste {output.split1} {output.gclass} {input.tdist} {output.split2} | tail -n +2 > {output.table}
         '''
 
 rule extract_header:
     output:
-        temp("header.txt")
+        temp("example_data/header.txt")
     run:
         head = ""
         head += 'Node' + '\t' + 'Gene class' + '\t' + 'Taxonomic difference' + '\t' + 'Order1' + '\t' + 'Order2' + '\t' + 'Species1' + '\t' + 'Species2' + '\n'
@@ -107,57 +118,57 @@ rule extract_header:
 
 rule combine_hgt_table:
     input:
-        table = expand("{dir}/table_w_labels.txt", dir=DIR),
-        header = "header.txt"
+        table = expand("example_data/{dir}/table_w_labels.txt", dir=DIR),
+        header = "example_data/header.txt"
     output:
-        temp("hgt_table1.txt")
-    run:
+        table = temp("example_data/hgt_table1.txt")
+    shell:
         '''
-        cat {input.header} */table_w_labels.txt > {output}
+        cat {input.header} example_data/*/table_w_labels.txt > {output.table}
         '''
 
 rule translate_accession_ids:
     input:
-        table = 'hgt_table1.txt',
+        table = 'example_data/hgt_table1.txt',
         index = '/home/dlund/index_files/ID_index.txt'
     output:
-        ids = temp('assembly_ids.txt'),
-        table = temp('hgt_table2.txt')
+        ids = temp('example_data/assembly_ids.txt'),
+        table = temp('example_data/hgt_table2.txt')
     shell:
         '''
-        python ../scripts/translate_accession_ids.py --input {input.table} --index {input.index} --output {output}
+        python scripts/translate_accession_ids.py --input {input.table} --index {input.index} --output {output.ids}
         paste {input.table} {output.ids} > {output.table}
         '''
 
 rule lookup_otus:
     input:
-        table = 'hgt_table2.txt'
+        table = 'example_data/hgt_table2.txt'
     output:
-        emp = temp('otus_emp.txt'),
-        gwmc = temp('otus_gwmc.txt'),
-        table = temp('hgt_table3.txt')
+        emp = temp('example_data/otus_emp.txt'),
+        gwmc = temp('example_data/otus_gwmc.txt'),
+        table = temp('example_data/hgt_table3.txt')
     shell:
         '''
-        python ../scripts/lookup_otus.py --input {input.table} --database emp --output {output.emp}
-        python ../scripts/lookup_otus.py --input {input.table} --database gwmc --output {output.gwmc}
+        python scripts/lookup_otus.py --input {input.table} --database emp --output {output.emp}
+        python scripts/lookup_otus.py --input {input.table} --database gwmc --output {output.gwmc}
         paste {input.table} {output.emp} {output.gwmc} > {output.table}
         '''
 
 rule genome_5mer_distance:
     input:
-        'hgt_table3.txt'
+        'example_data/hgt_table3.txt'
     output:
-        temp('genome_5mer_distance.txt')
+        temp('example_data/genome_5mer_distance.txt')
     shell:
         '''
-        python ../scripts/genome_5mer_distance.py --input {input} -k 5 --num_cores 1 --output {output}
+        python scripts/genome_5mer_distance.py --input {input} -k 5 --num_cores 1 --output {output}
         '''
 
 rule separate_genome_groups:
     input:
-        'hgt_table3.txt'
+        'example_data/hgt_table3.txt'
     output:
-        dname = directory('separated_groups')
+        dname = directory('example_data/separated_groups')
     run:
         table = pd.read_csv(input[0], sep="\t")
         
@@ -178,10 +189,10 @@ rule separate_genome_groups:
 
 rule gene_genome_5mer_distance:
     input:
-        dname = 'separated_groups',
-        distr = 'genome_5mer_distance.txt'
+        dname = 'example_data/separated_groups',
+        distr = 'example_data/genome_5mer_distance.txt'
     output:
-        temp('gene_genome_5mer_distance.txt')
+        temp('example_data/gene_genome_5mer_distance.txt')
     run:
         subdir = glob.glob(input[0] + '/*')
         
@@ -197,63 +208,63 @@ rule gene_genome_5mer_distance:
 
             extract_sequences(header_subset, '%s/nucleotides.fna' %(d), header_complete, '%s/predicted-orfs.fasta')
 
-        subprocess.run('snakemake -s ../scripts/generate_gene_5mer_distributions.smk --cores 3 all', shell=True)
-        subprocess.run('python ../scripts/gene_genome_5mer_distance.py --input %s --output %s' %(input[1], output[0]))
+        subprocess.run('snakemake -s scripts/generate_gene_5mer_distributions.smk --cores 3 all', shell=True)
+        subprocess.run('python scripts/gene_genome_5mer_distance.py --input %s --output %s' %(input[1], output[0]))
 
 rule genome_size_difference:
     input:
-        true = 'hgt_table3.txt',
-        null = 'null_table1.txt'
+        true = 'example_data/hgt_table3.txt',
+        null = 'example_data/null_table1.txt'
     output:
-        true = temp('genome_size_diff.txt'),
-        null = temp('genome_size_diff_null.txt')
+        true = temp('example_data/genome_size_diff.txt'),
+        null = temp('example_data/genome_size_diff_null.txt')
     shell:
         '''
-        python ../scripts/genome_size_difference.py --input {input.true} --output {output.true} --num_cores 1
-        python ../scripts/genome_size_difference.py --input {input.null} --output {output.null} --num_cores 1
+        python scripts/genome_size_difference.py --input {input.true} --output {output.true} --num_cores 1
+        python scripts/genome_size_difference.py --input {input.null} --output {output.null} --num_cores 1
         '''
 
 rule cooccurrence:
     input:
-        true = 'hgt_table3.txt',
-        null = 'null_table1.txt'
+        true = 'example_data/hgt_table3.txt',
+        null = 'example_data/null_table1.txt'
     output:
-        emp_true = temp('cooccurrence_emp.txt'),
-        gwmc_true = temp('cooccurrence_gwmc.txt'),
-        emp_null = temp('cooccurrence_emp_null.txt'),
-        gwmc_null = temp('cooccurrence_gwmc_null.txt')
+        emp_true = temp('example_data/cooccurrence_emp.txt'),
+        gwmc_true = temp('example_data/cooccurrence_gwmc.txt'),
+        emp_null = temp('example_data/cooccurrence_emp_null.txt'),
+        gwmc_null = temp('example_data/cooccurrence_gwmc_null.txt')
     conda:
         '../envs/arg_hgt_R.yml'
     shell:
         '''
-        Rscript ../scripts/cooccurrence.R --database emp --input {input.true} --output {output.emp_true} --num_cores 1
-        Rscript ../scripts/cooccurrence.R --database gwmc --input {input.true} --output {output.gwmc_true} --num_cores 1
-        Rscript ../scripts/cooccurrence.R --database emp --input {input.null} --output {output.emp_null} --num_cores 1
-        Rscript ../scripts/cooccurrence.R --database gwmc --input {input.null} --output {output.gwmc_null} --num_cores 1
+        Rscript scripts/cooccurrence.R --database emp --input {input.true} --output {output.emp_true} --num_cores 1
+        Rscript scripts/cooccurrence.R --database gwmc --input {input.true} --output {output.gwmc_true} --num_cores 1
+        Rscript scripts/cooccurrence.R --database emp --input {input.null} --output {output.emp_null} --num_cores 1
+        Rscript scripts/cooccurrence.R --database gwmc --input {input.null} --output {output.gwmc_null} --num_cores 1
         '''
 
 rule gram_stain_difference:
     input:
-        true = 'hgt_table3.txt',
-        null = 'null_table1.txt'
+        true = 'example_data/hgt_table3.txt',
+        null = 'example_data/null_table1.txt'
     output:
-        true = temp('gram_stain_diff.txt'),
-        null = temp('gram_stain_diff_null.txt')
+        true = temp('example_data/gram_stain_diff.txt'),
+        null = temp('example_data/gram_stain_diff_null.txt')
     shell:
         '''
-        python ../scripts/genome_size_difference.py --input {input.true} --output {output.true} --num_cores 1
-        python ../scripts/genome_size_difference.py --input {input.null} --output {output.null} --num_cores 1
+        python scripts/genome_size_difference.py --input {input.true} --output {output.true} --num_cores 1
+        python scripts/genome_size_difference.py --input {input.null} --output {output.null} --num_cores 1
         '''
 
 rule complete_hgt_table:
     input:
-        table = 'hgt_table3.txt',
-        genome_dist = 'genome_5mer_distance.txt',
-        gene_genome_dist = 'gene_genome_5mer_distance.txt',
-        genome_size = 'genome_size_diff.txt',
-        emp = 'cooccurrence_emp.txt',
-        gwmc = 'cooccurrence_gwmc.txt',
-        gram_stain = 'gram_stain_diff.txt'
+        table = 'example_data/hgt_table3.txt',
+        genome_dist = 'example_data/genome_5mer_distance.txt',
+        gene_genome_dist = 'example_data/gene_genome_5mer_distance.txt',
+        genome_size = 'example_data/genome_size_diff.txt',
+        emp = 'example_data/cooccurrence_emp.txt',
+        gwmc = 'example_data/cooccurrence_gwmc.txt',
+        gram_stain = 'example_data/gram_stain_diff.txt'
     output:
         'observed_horizontal_transfers.txt'
     shell:
@@ -263,31 +274,32 @@ rule complete_hgt_table:
 
 rule create_sample_dict:
     input:
-        '{dir}'
+        cl = 'example_data/{dir}',
+        taxonomy = 'example_data/{dir}/host_taxonomy.txt'
     output:
-        '{dir}/sample_dict.pkl'
+        'example_data/{dir}/sample_dict.pkl'
     shell:
         '''
-        python ../scripts/create_sample_dict.py --gene_class {input} --output {output}
+        python scripts/create_sample_dict.py --gene_class {input.cl} --output {output}
         '''
 
 rule generate_null_distribution:
     input:
-        expand("{dir}/sample_dict.pkl", dir=DIR)
+        expand('example_data/{dir}/sample_dict.pkl', dir=DIR)
     output:
-        temp('null_table1.txt')
+        temp('example_data/null_table1.txt')
     shell:
         '''
-        python ../scripts/generate_null_distribution.py --max_number 100000 --output {output}
+        python scripts/generate_null_distribution.py --max_number 1000 --output {output}
         '''
 
 rule complete_null_distribution:
     input:
-        table = 'null_table1.txt',
-        genome_size = 'genome_size_diff_null.txt',
-        emp = 'cooccurrence_emp_null.txt',
-        gwmc = 'cooccurrence_gwmc_null.txt',
-        gram_stain = 'gram_stain_diff_null.txt'
+        table = 'example_data/null_table1.txt',
+        genome_size = 'example_data/genome_size_diff_null.txt',
+        emp = 'example_data/cooccurrence_emp_null.txt',
+        gwmc = 'example_data/cooccurrence_gwmc_null.txt',
+        gram_stain = 'example_data/gram_stain_diff_null.txt'
     output:
         'null_distribution.txt'
     shell:
