@@ -20,6 +20,8 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(description=desc+'. '+copyright)
     parser.add_argument('--gene_class', required=True,
                         help='Class of resistance genes to analyze.')
+    parser.add_argument('--taxonomy', required=True,
+                        help='Table containing host taxonomy.')
     parser.add_argument('--output', '-o', required=True,
                         help='Output file.')
     
@@ -86,9 +88,8 @@ def calc_genome_kmer_distributions(cluster_data, k, file_path_dict, possible_kme
 
 def main():
     arguments = parse_args(argv)
-    taxpath = '%s/host_taxonomy.txt' %(arguments.gene_class)
     genomepaths = '/storage/dlund/HGT_inference_project/paths_taxonomy_check_ok_no_contam.txt'
-    taxonomy, genome_file_paths, gene_file_paths = setup_dictionaries(taxpath, genomepaths, arguments.gene_class)
+    taxonomy, genome_file_paths, gene_file_paths = setup_dictionaries(arguments.taxonomy, genomepaths, arguments.gene_class)
     clusters = clusters = glob.glob('%s/clusters/*' %(arguments.gene_class))
     all_kmers = aux.generate_possible_kmers(5)
 
