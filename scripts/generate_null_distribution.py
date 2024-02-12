@@ -96,7 +96,7 @@ def find_antibiotic_class(gene_class):
 
 def combine_sample_dicts():
     combined_dict = {}
-    categories = [dir for dir in glob.glob("*") if os.path.isdir( dir)]
+    categories = [dir for dir in glob.glob("example_data/*") if os.path.isdir( dir)]
 
     for item in categories:
         gene_class = item.split('.')[0]
@@ -155,34 +155,38 @@ def main():
     null_data = []
 
     for i in range(int(arguments.max_number)):
-        key1 = random.sample(list(df.index), 1)
-        data1, order1, species1, assembly_accession1 = extract_information(key1, combined_dict)
-
-        if len(list(df.index[df.loc[:,0] != order1])) == 0:
+        if df.shape[0] == 0:
             break
 
         else:
-            key2 = random.sample(list(df.index[df.loc[:,0] != order1]), 1)
-            data2, order2, species2, assembly_accession2 = extract_information(key2, combined_dict)
+            key1 = random.sample(list(df.index), 1)
+            data1, order1, species1, assembly_accession1 = extract_information(key1, combined_dict)
 
-            tax_diff = measure_taxonomic_distance(order1, order2, taxonomy)
-            otus_emp1 = lookup_otus(assembly_accession1, otu_mapping_emp)
-            otus_emp2 = lookup_otus(assembly_accession2, otu_mapping_emp)
-            otus_gwmc1 = lookup_otus(assembly_accession1, otu_mapping_gwmc)
-            otus_gwmc2 = lookup_otus(assembly_accession2, otu_mapping_gwmc)
-            genome_5mer_dist = math.dist(data1['5mer_distribution_genome'], data2['5mer_distribution_genome'])
+            if len(list(df.index[df.loc[:,0] != order1])) == 0:
+                break
 
-            selected = random.sample([key1, key2], 1)[0]
-            gene_genome_5mer_dist = calc_gene_genome_5mer_distance(combined_dict, selected, data1, data2)
-            gene_class = combined_dict[selected[0]]['gene_class']
-            antibiotic_class = find_antibiotic_class(gene_class)
+            else:
+                key2 = random.sample(list(df.index[df.loc[:,0] != order1]), 1)
+                data2, order2, species2, assembly_accession2 = extract_information(key2, combined_dict)
 
-            null_data.append(['Null_%s' %(i), gene_class, antibiotic_class, tax_diff, order1, order2, species1, species2, assembly_accession1, assembly_accession2, otus_emp1, otus_emp2, otus_gwmc1, otus_gwmc2, genome_5mer_dist, gene_genome_5mer_dist])
-            df = df.drop(key1[0])
-            df = df.drop(key2[0])
+                tax_diff = measure_taxonomic_distance(order1, order2, taxonomy)
+                otus_emp1 = lookup_otus(assembly_accession1, otu_mapping_emp)
+                otus_emp2 = lookup_otus(assembly_accession2, otu_mapping_emp)
+                otus_gwmc1 = lookup_otus(assembly_accession1, otu_mapping_gwmc)
+                otus_gwmc2 = lookup_otus(assembly_accession2, otu_mapping_gwmc)
+                genome_5mer_dist = math.dist(data1['5mer_distribution_genome'], data2['5mer_distribution_genome'])
 
-            time.sleep(0.1)
-            bar.update(i)
+                selected = random.sample([key1, key2], 1)[0]
+                gene_genome_5mer_dist = calc_gene_genome_5mer_distance(combined_dict, selected, data1, data2)
+                gene_class = combined_dict[selected[0]]['gene_class']
+                antibiotic_class = find_antibiotic_class(gene_class)
+
+                null_data.append(['Null_%s' %(i), gene_class, antibiotic_class, tax_diff, order1, order2, species1, species2, assembly_accession1, assembly_accession2, otus_emp1, otus_emp2, otus_gwmc1, otus_gwmc2, genome_5mer_dist, gene_genome_5mer_dist])
+                df = df.drop(key1[0])
+                df = df.drop(key2[0])
+
+                time.sleep(0.1)
+                bar.update(i)
 
     null_table = pd.DataFrame(data=null_data)
     null_table.columns = ['Node', 

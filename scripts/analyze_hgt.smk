@@ -90,8 +90,7 @@ rule calc_taxonomic_distance:
 rule add_labels:
     input:
         table = 'example_data/{dir}/observed_hgt.txt',
-        tdist = 'example_data/{dir}/taxonomic_distance.txt',
-        cl = 'example_data/{dir}'
+        tdist = 'example_data/{dir}/taxonomic_distance.txt'
     output:
         gclass = temp('example_data/{dir}/gene_class.txt'),
         split1 = temp('example_data/{dir}/s1.txt'),
@@ -99,9 +98,10 @@ rule add_labels:
         table = temp('example_data/{dir}/table_w_labels.txt')
     shell:
         '''
-        python scripts/make_labels.py --list {input.table} --word {input.cl} --header "Gene class" --output {output.gclass}
+        name=$(echo {input.table} | cut -d "/" -f 2)
+        python scripts/make_labels.py --list {input.table} --word $name --header "Gene class" --output {output.gclass}
         cat {input.table} | cut -f 1 > {output.split1}
-        cat {input.table} | cut -f 2 > {output.split2}
+        cat {input.table} | cut -f 2- > {output.split2}
         paste {output.split1} {output.gclass} {input.tdist} {output.split2} | tail -n +2 > {output.table}
         '''
 
@@ -178,13 +178,13 @@ rule separate_genome_groups:
             subprocess.run('mkdir %s/%s' %(output[0], subdir1), shell=True)
     
             ids1 = split_ids(table, "Species1")
-            ids1.to_csv('%s/´%s/accession_ids.txt' %(output[0], subdir1), index=False, header=False)
+            ids1.to_csv('%s/%s/accession_ids.txt' %(output[0], subdir1), index=False, header=False)
 
             subdir2 = '-'.join([table.iloc[i,0], table.iloc[i,1], 'grp2'])
             subprocess.run('mkdir %s/%s' %(output[0], subdir2), shell=True)
     
             ids2 = split_ids(table, "Species2")
-            ids1.to_csv('%s/´%s/accession_ids.txt' %(output[0], subdir2), index=False, header=False)
+            ids1.to_csv('%s/%s/accession_ids.txt' %(output[0], subdir2), index=False, header=False)
 
 rule gene_genome_5mer_distance:
     input:

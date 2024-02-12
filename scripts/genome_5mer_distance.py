@@ -45,7 +45,7 @@ def calc_kmer_distribution(genomes, k, possible_kmers, results, paths):
         distribution = aux.get_kmer_distribution(genome_kmers, possible_kmers)
         kmer_distribution.loc[genomes_split[j]] = list(distribution['fraction'])
 
-    results[genomes] = list(np.mean(kmer_distribution))
+    results[genomes] = list(np.mean(kmer_distribution, axis=0))
 
     return results
 
