@@ -36,7 +36,6 @@ def extract_sequences(header_subset, fasta_subset, header_complete, fasta_comple
 #-------------------------------------------------------------------------------
 rule all:
     input:
-        #expand('{dir}/tree_clustered.txt', dir=DIR)
         'observed_horizontal_transfers.txt',
         'null_distribution.txt'
 
@@ -274,13 +273,12 @@ rule complete_hgt_table:
 
 rule create_sample_dict:
     input:
-        cl = 'example_data/{dir}',
-        taxonomy = rules.preprocessing.output.taxonomy
+        rules.preprocessing.output.taxonomy
     output:
         'example_data/{dir}/sample_dict.pkl'
     shell:
         '''
-        python scripts/create_sample_dict.py --gene_class {input.cl} --taxonomy {input.taxonomy} --output {output}
+        python scripts/create_sample_dict.py --taxonomy {input} --output {output}
         '''
 
 rule generate_null_distribution:

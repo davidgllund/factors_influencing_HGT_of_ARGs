@@ -18,8 +18,6 @@ def parse_args(argv):
     desc = 'Creates a dictionary containing information about predicted ARG clusters'
     copyright = 'Copyright (c) David Lund 2023.'
     parser = argparse.ArgumentParser(description=desc+'. '+copyright)
-    parser.add_argument('--gene_class', required=True,
-                        help='Class of resistance genes to analyze.')
     parser.add_argument('--taxonomy', required=True,
                         help='Table containing host taxonomy.')
     parser.add_argument('--output', '-o', required=True,
@@ -42,7 +40,7 @@ def setup_dictionaries(taxpath, genomepaths, gene_class):
         for line in f:
             items = line.split('/')
             genome_file_paths['_'.join(items[8].split('_')[0:2])] = line.rstrip()
-            gene_file_paths['_'.join(items[8].split('_')[0:2])] = '/'.join(line.split('/')[:-1]) + '/' + gene_class + '.hmm/predictedGenes/predicted-orfs.fasta'
+            gene_file_paths['_'.join(items[8].split('_')[0:2])] = '/' + '/'.join(line.split('/')[:-1]) + '/' + gene_class + '.hmm/predictedGenes/predicted-orfs.fasta'
 
     return taxonomy, genome_file_paths, gene_file_paths
 
@@ -61,7 +59,7 @@ def calc_gene_kmer_distributions(cluster_data, k, file_path_dict, possible_kmers
     predicted_args = aux.fasta_reader(itemgetter(*tuple(random.sample(list(cluster_data['assembly_accession']),1)))(file_path_dict))
     predicted_args = predicted_args.drop(labels=list(set(predicted_args.index).difference(list(cluster_data['acc']))))
 
-    gene_kmers = aux.get_kmers(predicted_args['Sequence'][0], k)
+    gene_kmers = aux.get_kmers(predicted_args.iloc[0, 1], k)
     distribution = aux.get_kmer_distribution(gene_kmers, possible_kmers)
 
     results = pd.DataFrame(data=list(distribution['fraction']))
@@ -89,15 +87,16 @@ def calc_genome_kmer_distributions(cluster_data, k, file_path_dict, possible_kme
 def main():
     arguments = parse_args(argv)
     genomepaths = '/storage/dlund/HGT_inference_project/paths_taxonomy_check_ok_no_contam.txt'
-    taxonomy, genome_file_paths, gene_file_paths = setup_dictionaries(arguments.taxonomy, genomepaths, arguments.gene_class)
-    clusters = clusters = glob.glob('%s/clusters/*' %(arguments.gene_class))
+    gene_class = arguments.taxonomy.split('/')[1]
+    taxonomy, genome_file_paths, gene_file_paths = setup_dictionaries(arguments.taxonomy, genomepaths, gene_class)
+    clusters = glob.glob('example_data/%s/clusters/*' %(gene_class))
     all_kmers = aux.generate_possible_kmers(5)
 
     sample_dict = {}
     bar = aux.setup_progressbar(len(clusters))
 
     for i in range(len(clusters)):
-        key = clusters[i].split('/')[1]
+        key = clusters[i].split('/')[-1]
 
         if key not in taxonomy.keys():
             time.sleep(0.1)
@@ -120,7 +119,7 @@ def main():
             gene_kmer_distr = calc_gene_kmer_distributions(cluster_df, 5, gene_file_paths, all_kmers)
             genome_kmer_distr = calc_genome_kmer_distributions(cluster_df, 5, genome_file_paths, all_kmers)
 
-            sample_dict[key] = {'gene_class': arguments.gene_class, 'order': list(cluster_df['order']), 'assembly_accessions': list(cluster_df['assembly_accession']), 'species': list(cluster_df['species']), '5mer_distribution_genome': list(np.mean(genome_kmer_distr)), '5mer_distribution_gene': gene_kmer_distr}
+            sample_dict[key] = {'gene_class': gene_class, 'order': list(cluster_df['order']), 'assembly_accessions': list(cluster_df['assembly_accession']), 'species': list(cluster_df['species']), '5mer_distribution_genome': list(np.mean(genome_kmer_distr, axis=0)), '5mer_distribution_gene': gene_kmer_distr}
 
             time.sleep(0.1)
             bar.update(i)
