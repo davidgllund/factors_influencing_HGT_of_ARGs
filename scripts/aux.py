@@ -64,7 +64,7 @@ def read_file(filename):
 
 def fasta_reader(filename):
     fasta_df = pd.read_csv(filename, sep='>', lineterminator='>', header=None)
-    fasta_df[['Accession', 'Sequence']] = fasta_df[0].str.split('\n', 1, expand=True)
+    fasta_df[['Accession', 'Sequence']] = fasta_df[0].str.split('\n', n=1, expand=True)
     fasta_df.drop(0, axis=1, inplace=True)
     fasta_df['Sequence'] = fasta_df['Sequence'].replace('\n', '', regex=True)
     fasta_df.index = list(['_'.join(x.split('_')[-2:]) for x in list(fasta_df['Accession'])])
