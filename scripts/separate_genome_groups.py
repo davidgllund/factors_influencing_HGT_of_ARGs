@@ -1,7 +1,9 @@
 from sys import argv
 import argparse
+import glob
 import subprocess
 
+from Bio import SeqIO
 import pandas as pd
 
 def parse_args(argv):
@@ -50,7 +52,15 @@ def main():
     subprocess.run('mkdir %s' %(arguments.output), shell=True)
         
     for i in range(len(table.iloc[:,0])):
-        subdir1 = '-'.join([table.iloc[i,0], table.iloc[i,1], 'grp1'])
+        ls = glob.glob('example_data/separated_groups/*')
+
+        if len(list(filter(lambda x:table.iloc[i,0] in x, ls))) == 0:
+            j = 1
+
+        else: 
+            j += 1
+
+        subdir1 = '-'.join([table.iloc[i,0], table.iloc[i,1], str(j), 'grp1'])
         subprocess.run('mkdir %s/%s' %(arguments.output, subdir1), shell=True)
     
         ids1 = split_ids(table, "Species1")
@@ -60,7 +70,7 @@ def main():
 
         extract_sequences('%s/%s/header_subset.txt' %(arguments.output, subdir1), '%s/%s/nucleotides.fna' %(arguments.output, subdir1), 'example_data/%s/fasta_headers.txt' %(table.iloc[i,1]), 'example_data/%s/predicted-orfs.fasta' %(table.iloc[i,1]))
 
-        subdir2 = '-'.join([table.iloc[i,0], table.iloc[i,1], 'grp2'])
+        subdir2 = '-'.join([table.iloc[i,0], table.iloc[i,1], str(j), 'grp2'])
         subprocess.run('mkdir %s/%s' %(arguments.output, subdir2), shell=True)
     
         ids2 = split_ids(table, "Species2")
