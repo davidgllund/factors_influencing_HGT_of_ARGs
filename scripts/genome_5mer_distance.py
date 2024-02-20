@@ -50,12 +50,12 @@ def calc_kmer_distribution(genomes, k, possible_kmers, results, paths):
     return results
 
 def calc_kmer_distance(input_data, kmer_distributions, bar):
-    results = pd.DataFrame(columns = ['Kmer_distribution1', 'Kmer_distribution2', 'Euclidean_distance'])
+    results = pd.DataFrame(columns = ['Kmer_distribution1', 'Kmer_distribution2', 'Genome_kmer_distance'])
 
     for i in range(input_data.shape[0]):
         results.loc[i,'Kmer_distribution1'] = kmer_distributions[input_data.loc[i, 'AssemblyAccessionID1']]
         results.loc[i,'Kmer_distribution2'] = kmer_distributions[input_data.loc[i, 'AssemblyAccessionID2']]
-        results.loc[i,'Euclidean_distance'] = math.dist(kmer_distributions[input_data.loc[i, 'AssemblyAccessionID1']], kmer_distributions[input_data.loc[i, 'AssemblyAccessionID2']])
+        results.loc[i,'Genome_kmer_distance'] = math.dist(kmer_distributions[input_data.loc[i, 'AssemblyAccessionID1']], kmer_distributions[input_data.loc[i, 'AssemblyAccessionID2']])
 
         time.sleep(0.1)
         bar.update(i)
