@@ -9,6 +9,10 @@
 #-------------------------------------------------------------------------------
 # 0 LOAD LIBRARIES
 #-------------------------------------------------------------------------------
+if(!require(Dict)){
+    install.packages("Dict", repos='http://cran.us.r-project.org')
+}
+
 suppressMessages(library(caret))
 suppressMessages(library(dplyr))
 suppressMessages(library(forcats))
