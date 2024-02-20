@@ -26,7 +26,7 @@ rule generate_null_distribution:
     input:
         expand('example_data/{dir}/sample_dict.pkl', dir=DIR)
     output:
-        temp('example_data/null_table.txt')
+        'example_data/null_table.txt'
     shell:
         '''
         python scripts/generate_null_distribution.py --max_number 1000 --output {output}

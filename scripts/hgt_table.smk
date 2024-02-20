@@ -93,7 +93,7 @@ rule combine_hgt_table:
         table = expand("example_data/{dir}/table_w_labels.txt", dir=DIR),
         header = "example_data/header.txt"
     output:
-        table = temp("example_data/hgt_table.txt")
+        table = "example_data/hgt_table.txt"
     shell:
         '''
         cat {input.header} example_data/*/table_w_labels.txt > {output.table}
