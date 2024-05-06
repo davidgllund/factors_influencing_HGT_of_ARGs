@@ -17,6 +17,8 @@ def parse_args(argv):
                         help='Nucleotide multifasta produced by fARGene [INPUT].')
     parser.add_argument('--proteins', required=True,
                         help='Protein multifasta produced by fARGene [INPUT].')
+    parser.add_argument('--taxonomy_index', required=True,
+                        help='File containing full lineage of genome assemblies [INPUT].')
     parser.add_argument('--taxonomy', required=True,
                         help='File containing taxonomy of bacterial hosts [OUTPUT].')
     parser.add_argument('--fasta_w_species', required=True,
