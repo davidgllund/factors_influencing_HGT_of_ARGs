@@ -15,7 +15,8 @@ rule all:
 rule preprocessing:
     input:
         nucleotides = 'example_data/{dir}/predicted-orfs.fasta',
-        proteins = 'example_data/{dir}/predicted-orfs-amino.fasta'
+        proteins = 'example_data/{dir}/predicted-orfs-amino.fasta',
+        taxonomy = 'index_files/assembly_taxonomy.txt'
     output:
         taxonomy = 'example_data/{dir}/host_taxonomy.txt',
         fasta_w_species = temp('example_data/{dir}/args_w_species.fasta'),
@@ -27,7 +28,7 @@ rule preprocessing:
         headerlines = 'example_data/{dir}/fasta_headers.txt'
     shell:
         '''
-        python scripts/preprocessing.py --nucleotides {input.nucleotides} --proteins {input.proteins} --taxonomy {output.taxonomy} --fasta_w_species {output.fasta_w_species} --clusters {output.clusters} --centroids {output.centroids} --alignment {output.alignment} --tree {output.tree} --blastout {output.blastout}
+        python scripts/preprocessing.py --nucleotides {input.nucleotides} --proteins {input.proteins} --taxonomy_index {input.taxonomy} --taxonomy {output.taxonomy} --fasta_w_species {output.fasta_w_species} --clusters {output.clusters} --centroids {output.centroids} --alignment {output.alignment} --tree {output.tree} --blastout {output.blastout}
         grep '>' {input.nucleotides} > {output.headerlines}
         '''
 
