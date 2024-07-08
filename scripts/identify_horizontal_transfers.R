@@ -252,6 +252,11 @@ for (i in 1:length(node_list)) {
       next
     }
 
+    # Skip if node is too high up in the tree
+    else if (length(Descendants(tree, edge_table[edge_table$parent_label == node_list[length(node_list) - i + 1], 1], type = "all")[[1]]) > 100) {
+      next
+    }
+
     else {
       leaf_ids1 <- edge_table[edge_table$child_ID %in% Descendants(tree, descendant_nodes[1])[[1]], 4]
       leaf_ids2 <- edge_table[edge_table$child_ID %in% Descendants(tree, descendant_nodes[2])[[1]], 4]
@@ -275,6 +280,11 @@ for (i in 1:length(node_list)) {
 
       # Skip if node is tripartite
       if (length(descendant_nodes) > 2) {
+        next
+      }
+
+      # If no order was recorded for at least one group, skip
+      else if (length(orders1) == 0 || length(orders2) == 0) {
         next
       }
 
@@ -395,7 +405,7 @@ write.table(results_adj, opt$output, sep = "\t", quote = FALSE, row.names = FALS
 #-------------------------------------------------------------------------------
 # 6 PLOT TREE
 #-------------------------------------------------------------------------------
-nodes_to_color <- unique(nodes_to_color)
+nodes_to_color <- unique(event_nodes)
 nodes_to_color <- c(nodes_to_color, unique(edge_table[edge_table$parent_label %in% results_adj$Node,1]))
 
 headers <- as.character(tree$tip.label)
