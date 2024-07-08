@@ -76,6 +76,9 @@ measure.taxonomic.difference <- function(order1, order2, taxonomy) {
         } else if (tax1[1] != tax2[1]){
             tax_level_diff <- "phylum"
 
+        } else if (tax1[1] == tax2[1] && (is.na(tax1[2]) || is.na(tax2[2]))) {
+            tax_level_diff <- NA
+
         } else if (tax1[2] != tax2[2]){
             tax_level_diff <- "class"
 
