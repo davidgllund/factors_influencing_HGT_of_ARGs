@@ -41,13 +41,15 @@ def calc_mean_size(genomes, results, paths):
     return results
 
 def calc_genome_size_difference(input_data, mean_size, bar):
-    results = pd.DataFrame(columns = ['Genome_size_difference'])
+    size_diff = []
 
     for i in range(input_data.shape[0]):
-        results.loc[i,'Genome_size_difference'] = abs(mean_size[input_data.loc[i, 'AssemblyAccessionID1']] - mean_size[input_data.loc[i, 'AssemblyAccessionID2']]) / (mean_size[input_data.loc[i, 'AssemblyAccessionID1']] + mean_size[input_data.loc[i, 'AssemblyAccessionID2']])
+        size_diff.append(abs(mean_size[input_data.loc[i, 'AssemblyAccessionID1']] - mean_size[input_data.loc[i, 'AssemblyAccessionID2']]) / (mean_size[input_data.loc[i, 'AssemblyAccessionID1']] + mean_size[input_data.loc[i, 'AssemblyAccessionID2']]))
 
         time.sleep(0.1)
         bar.update(i)
+
+    results = pd.DataFrame({'Genome_size_difference': size_diff})
 
     return results
 
