@@ -29,6 +29,7 @@ def parse_args(argv):
 
 def setup_dictionaries(taxpath, genomepaths, gene_class):
     taxonomy = {}
+    
     with open(taxpath) as f:
         for line in islice(f, 1, None):
             items = line.split('\t')
@@ -36,6 +37,7 @@ def setup_dictionaries(taxpath, genomepaths, gene_class):
 
     genome_file_paths = {}
     gene_file_paths = {}
+
     with open(genomepaths) as f:
         for line in f:
             items = line.split('/')
