@@ -46,13 +46,13 @@ def read_mapping_file(db):
     otu_mapping = {}
 
     if db == 'emp':
-        with open('/home/dlund/HGT_inference_project/analysis/updated_taxonomy/cooccurrence/emp/otu_mapping_file.txt') as f:
+        with open('/storage/dlund/HGT_2.0/co_occurrence/emp/otu_mapping_file.txt') as f:
             for line in f:
                 (key, val) = line.split('\t')
                 otu_mapping[key] = val.strip()
 
     elif db == 'gwmc':
-        with open('/home/dlund/HGT_inference_project/analysis/updated_taxonomy/cooccurrence/gwmc/otu_mapping_file.txt') as f:
+        with open('/storage/dlund/HGT_2.0/co_occurrence/gwmc/otu_mapping_file.txt') as f:
             for line in f:
                 (key, val) = line.split('\t')
                 otu_mapping[key] = val.strip()
