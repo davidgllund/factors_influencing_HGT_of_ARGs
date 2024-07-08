@@ -63,14 +63,14 @@ compile.cooccurrence.gwmc <- function(otu1, otu2) {
 }
 
 analyze.cooccurrence.gwmc <- function(input_data) {
-    otu1 <- unique(str_split(as.character(input_data[1]), ";")[[1]])
-    otu2 <- unique(str_split(as.character(input_data[2]), ";")[[1]])
+    otu1 <- unique(str_split(as.character(input_data[1]), ";")[[1]]) %>% .[. != ""]
+    otu2 <- unique(str_split(as.character(input_data[2]), ";")[[1]]) %>% .[. != ""]
 
-    if (is.na(otu1) || is.na(otu2)) {
+    if (is.na(input_data[1]) || is.na(input_data[2])) {
       results <- NA
     }
 
-    else if (length(otu1) == length(otu2) && otu1 == otu2) {
+    else if (length(otu1) == length(otu2) && input_data[1] == input_data[2]) {
       results <- NA
     }
 
