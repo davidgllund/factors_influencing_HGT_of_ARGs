@@ -1,3 +1,4 @@
+
 #!/usr/bin/env Rscript
 
 # This script converts co-occurrence data from the Earth Microbiome project into
@@ -18,6 +19,7 @@ suppressMessages(library(tidyverse))
 library(utils)
 library(pbapply)
 library(optparse)
+library(dplyr)
 
 pbo <- pboptions(type = "timer")
 
@@ -47,7 +49,7 @@ if (is.null(opt$database) | is.null(opt$input) | is.null(opt$output)) {
 # 2 READ AND FILTER DATA
 #-------------------------------------------------------------------------------
 if (opt$database == "emp") {
-  source("/home/dlund/HGT_inference_project/scripts/final_version/estimate_cooccurrence_emp.R")
+  source("/home/dlund/HGT_inference_project/code_for_publication/scripts/estimate_cooccurrence_emp.R")
 
   count_table <- data.frame(fread("/home/dlund/HGT_inference_project/analysis/coocurrence_data_emp/otus_gg_13_8.txt"))
 
@@ -89,7 +91,7 @@ if (opt$database == "emp") {
   }
 
 } else if (opt$database == "gwmc") {
-  source("/home/dlund/HGT_inference_project/scripts/final_version/estimate_cooccurrence_gwmc.R")
+  source("/home/dlund/HGT_inference_project/code_for_publication/scripts/estimate_cooccurrence_gwmc.R")
 
   count_table <- data.frame(fread("/home/dlund/HGT_inference_project/analysis/coocurrence_data_gwmc/GWMC_16S_otutab.txt"))
 }
@@ -111,14 +113,12 @@ start_time <- Sys.time()
 
 if (opt$database == "emp") {
   otus <- horizontal_transfers[,c("Matched_OTU_EMP1", "Matched_OTU_EMP2")]
-  estimated_cooccurrence <- pbapply(otus, 1, analyze.cooccurrence.emp, cl = opt$num_cores)
-  estimated_cooccurrence <- as.data.frame(t(estimated_cooccurrence))
+  estimated_cooccurrence <- pbapply(otus, 1, analyze.cooccurrence.emp, cl = opt$num_cores) %>% t() %>% as.data.frame()
   colnames(estimated_cooccurrence) <- c("Animal", "Human", "Soil", "Water")
 
 } else if (opt$database == "gwmc") {
   otus <- horizontal_transfers[,c("Matched_OTU_GWMC1", "Matched_OTU_GWMC2")]
-  estimated_cooccurrence <- pbapply(otus, 1, analyze.cooccurrence.gwmc, cl = opt$num_cores)
-  estimated_cooccurrence <- as.data.frame(estimated_cooccurrence)
+  estimated_cooccurrence <- pbapply(otus, 1, analyze.cooccurrence.gwmc, cl = opt$num_cores) %>% as.data.frame()
   colnames(estimated_cooccurrence) <- c("Wastewater")
 }
 
