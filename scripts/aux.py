@@ -18,11 +18,12 @@ def setup_progressbar(length):
     return bar
 
 def export_output(results, output_filename):
-    strToExport = ""
-    for line in results:
-        strToExport += str(line) + "\n"
+    strToExport = ''
 
-    with open(output_filename, "w") as output:
+    for line in results:
+        strToExport += str(line) + '\n'
+
+    with open(output_filename, 'w') as output:
         output.write(strToExport)
 
 def get_kmers(seq, k):
@@ -36,14 +37,15 @@ def get_kmers(seq, k):
 def generate_possible_kmers(k):
     comb = list(product('ACGT', repeat=k))
     possible_kmers = []
+
     for i in range(len(comb)):
         possible_kmers.append(''.join(comb[i]))
 
     return possible_kmers
 
 def extract_accession_ids(dataframe):
-    ids = list(dataframe["AssemblyAccessionID1"])
-    ids.extend(list(dataframe["AssemblyAccessionID2"]))
+    ids = list(dataframe['AssemblyAccessionID1'])
+    ids.extend(list(dataframe['AssemblyAccessionID2']))
 
     return ids
 
@@ -51,13 +53,13 @@ def filepath_to_dict(path):
     dictionary = {}
     with open(path) as f:
         for line in f:
-            items = line.split("/")
-            dictionary["_".join(items[-1].split("_")[0:2])] = line.rstrip()
+            items = line.split('/')
+            dictionary['_'.join(items[-1].split("_")[0:2])] = line.rstrip()
 
     return dictionary
 
 def read_file(filename):
-    with open(filename, "r") as file:
+    with open(filename, 'r') as file:
         output = [x.strip() for x in file.readlines()]
 
     return output
@@ -73,11 +75,11 @@ def fasta_reader(filename):
 
 def get_kmer_distribution(kmers, possible_kmers):
     kmers_counted = Counter(kmers)
-    distribution = pd.DataFrame(data=np.zeros(shape=len(possible_kmers)))
-    distribution.index = possible_kmers
-    distribution.columns = ["fraction"]
+    dist_list = []
 
     for kmer in possible_kmers:
-        distribution.loc[kmer] = kmers_counted[kmer]/len(kmers)
+        dist_list.append(kmers_counted[kmer]/len(kmers))
+
+    distribution = pd.DataFrame({'fraction': dist_list}, index=possible_kmers)
 
     return distribution
