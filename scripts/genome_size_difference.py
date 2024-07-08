@@ -54,7 +54,7 @@ def calc_genome_size_difference(input_data, mean_size, bar):
 def main():
     arguments = parse_args(argv)
     input_data = pd.read_csv(arguments.input, sep='\t')
-    genome_paths = aux.filepath_to_dict('/storage/dlund/HGT_inference_project/paths_taxonomy_check_ok_no_contam.txt')
+    genome_paths = aux.filepath_to_dict('/home/dlund/HGT_2.0/analysis_updated/paths_tax_check_ok_no_contam.txt')
     accession_ids = aux.extract_accession_ids(input_data)
 
     mean_size = {}
