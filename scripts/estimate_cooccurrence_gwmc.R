@@ -70,8 +70,8 @@ analyze.cooccurrence.gwmc <- function(input_data) {
       results <- NA
     }
 
-    else if (length(otu1) == length(otu2) && input_data[1] == input_data[2]) {
-      results <- NA
+    else if (paste(otu1, collapse=";") == paste(otu2, collapse=";")) {
+      results <- rep(NA, times = 4)
     }
 
     else {
