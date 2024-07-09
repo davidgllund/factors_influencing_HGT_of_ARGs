@@ -78,7 +78,7 @@ analyze.cooccurrence.emp <- function(input_data) {
       results <- rep(NA, times = 4)
     }
 
-    else if (length(otu1) == length(otu2) && input_data[1] == input_data[2]) {
+    else if (paste(otu1, collapse=";") == paste(otu2, collapse=";")) {
       results <- rep(NA, times = 4)
     }
 
