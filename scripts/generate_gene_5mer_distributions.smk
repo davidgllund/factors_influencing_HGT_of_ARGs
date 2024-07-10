@@ -4,6 +4,7 @@
 # 0 IMPORT LIBRARIES
 #-------------------------------------------------------------------------------
 from collections import Counter
+from itertools import product
 import glob
 
 from Bio import SeqIO
@@ -65,16 +66,13 @@ rule generate_kmer_distributions:
             seq_entry = genes[list(genes.keys())[i]]
             kmers_in_gene = get_kmers(seq_entry.seq, k)
             num_kmers = Counter(kmers_in_gene)
-    
-            d = np.zeros(shape=len(all_kmers))
-            distr = pd.DataFrame(data=d)
-            distr.index = all_kmers
-            distr.columns = ['fraction']
+
+            distr = []
 
             for kmer in all_kmers:
-                distr.loc[kmer] = num_kmers[kmer]/len(kmers_in_gene)
+                distr.append(num_kmers[kmer]/len(kmers_in_gene))
         
-            kmer_distributions_gene.append(list(distr['fraction']))
+            kmer_distributions_gene.append(distr)
             gene_labels.append('_'.join(seq_entry.id.split('_')[0:3]))
             
         results_gene = pd.DataFrame(data=kmer_distributions_gene)
