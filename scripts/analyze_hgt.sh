@@ -24,16 +24,6 @@ cat example_data/genome_5mer_data.txt | cut -f 3 > example_data/genome_5mer_dist
 
 python scripts/separate_genome_groups.py --input example_data/hgt_table3.txt --output example_data/separated_groups
 
-for dir in example_data/separated_groups/*; do
-   gclass=$(echo $dir | cut -d '-' -f 2)
-   
-   while read line; do 
-      grep $line example_data/$gclass/predicted-orfs.fasta >> $dir/header_subset.txt
-   done<$dir/accession_ids.txt
-   
-   python scripts/extract_subset.py $dir/header_subset.txt example_data/$gclass/fasta_headers.txt example_data/$gclass/predicted-orfs.fasta $dir/nucleotides.fna
-done
-
 snakemake -s scripts/generate_gene_5mer_distributions.smk --cores $p all
 python scripts/gene_genome_5mer_distance.py --input example_data/genome_5mer_data.txt --output example_data/gene_genome_5mer_distance.txt
 
