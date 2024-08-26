@@ -39,6 +39,7 @@ Below is a step-by-step guide on how to generate the input data used to train ra
 2. Activate the appropriate conda environment
     ```
     conda env create -f envs/arg_hgt_python.yml
+    conda activate arg_hgt_python
     ```
     
 3. Identify horizontal transfers, generate null distribution and calculate input features using
