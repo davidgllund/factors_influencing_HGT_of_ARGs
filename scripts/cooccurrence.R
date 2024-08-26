@@ -55,7 +55,7 @@ if (opt$database == "emp") {
 
   metadata <- data.frame(fread("/home/dlund/HGT_inference_project/analysis/coocurrence_data_emp/emp_qiime_mapping_qc_filtered.tsv"))
   metadata$sample_scientific_name[metadata$sample_scientific_name == "skin metagenome" & metadata$host_common_name_provided == "human"] <- "human skin metagenome"
-  metadata$sample_scientific_name[metadata$sample_scientific_name == "upper respitatory tract metagenome" & metadata$host_common_name_provided == "human"] <- "human upper respiratory tract metagenome"
+  metadata$sample_scientific_name[metadata$sample_scientific_name == "upper respiratory tract metagenome" & metadata$host_common_name_provided == "human"] <- "human upper respiratory tract metagenome"
 
   classification_list <- list(
   "activated carbon metagenome" = "Others", "air metagenome" = "Others",

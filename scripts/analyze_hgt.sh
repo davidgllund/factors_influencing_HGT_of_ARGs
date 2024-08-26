@@ -6,6 +6,7 @@ do
    esac
 done
 
+# GENERATE POSITIVE DATASET
 # Collect data on horizontal gene transfers
 snakemake -s scripts/hgt_table.smk --cores $p --use-conda --conda-frontend conda all
 
@@ -32,12 +33,12 @@ python scripts/genome_size_difference.py --input example_data/hgt_table3.txt --o
 Rscript scripts/cooccurrence.R --database emp --input example_data/hgt_table3.txt --output example_data/cooccurrence_emp.txt --num_cores $p
 Rscript scripts/cooccurrence.R --database gwmc --input example_data/hgt_table3.txt --output example_data/cooccurrence_gwmc.txt --num_cores $p
 
-python scripts/gram_stain_difference.py --input example_data/hgt_table3.txt --output example_data/gram_stain_diff.txt --num_cores $p
+python scripts/gram_stain_difference.py --input example_data/hgt_table3.txt --output example_data/gram_stain_diff.txt
 
 paste example_data/hgt_table3.txt example_data/genome_5mer_distance.txt example_data/gene_genome_5mer_distance.txt example_data/genome_size_diff.txt example_data/gram_stain_diff.txt example_data/cooccurrence_emp.txt example_data/cooccurrence_gwmc.txt > observed_horizontal_transfers.txt
 rm example_data/hgt_table3.txt example_data/genome_5mer_distance.txt example_data/gene_genome_5mer_distance.txt example_data/genome_size_diff.txt example_data/gram_stain_diff.txt example_data/cooccurrence_emp.txt example_data/cooccurrence_gwmc.txt example_data/hgt_table.txt
 
-# Generate null distribution
+# GENERATE NEGATIVE DATASET
 snakemake -s scripts/null_distribution.smk --cores $p --use-conda --conda-frontend conda all
 
 python scripts/genome_size_difference.py --input example_data/null_table.txt --output example_data/genome_size_diff_null.txt --num_cores $p

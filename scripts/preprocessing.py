@@ -62,6 +62,7 @@ def compile_taxonomy(headers, taxonomy, arguments):
     print('Compiling taxonomy')
 
     df = pd.DataFrame(columns=['ID', 'superkingdom', 'phylum',  'class', 'order', 'family', 'genus', 'species'])
+    extract = []
     bar = aux.setup_progressbar(len(headers))
 
     for i in range(len(headers)):
@@ -70,18 +71,14 @@ def compile_taxonomy(headers, taxonomy, arguments):
 
         new_head = '-'.join([contig_accno, taxonomy[assembly_accno]['species'].replace(' ', '_')])
 
-        df.loc[len(df)] = {'ID': new_head,
-                           'superkingdom': taxonomy[assembly_accno]['superkingdom'], 
-                           'phylum': taxonomy[assembly_accno]['phylum'],  
-                           'class': taxonomy[assembly_accno]['class'], 
-                           'order': taxonomy[assembly_accno]['order'], 
-                           'family': taxonomy[assembly_accno]['family'], 
-                           'genus': taxonomy[assembly_accno]['genus'], 
-                           'species': taxonomy[assembly_accno]['species']}
+        extract.append([new_head, taxonomy[assembly_accno]['superkingdom'], taxonomy[assembly_accno]['phylum'],  
+                        taxonomy[assembly_accno]['class'], taxonomy[assembly_accno]['order'], taxonomy[assembly_accno]['family'], 
+                        taxonomy[assembly_accno]['genus'], taxonomy[assembly_accno]['species']])
     
-    time.sleep(0.1)
-    bar.update(i)
+        time.sleep(0.1)
+        bar.update(i)
 
+    df = pd.DataFrame(data = extract)
     df.to_csv(arguments.taxonomy, sep = '\t', header = True, index = False)
 
 def phylogenetic_analysis(new_headers, arguments):
