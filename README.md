@@ -36,14 +36,15 @@ Below is a step-by-step guide on how to generate the input data used to train ra
     git clone https://github.com/davidgllund/factors_influencing_HGT_of_ARGs.git
     ```
 
-2. Enter the folder "example data", where the scripts will be executed
+2. Activate the appropriate conda environment
     ```
-    cd example_data
+    conda env create -f envs/arg_hgt_python.yml
+    conda activate arg_hgt_python
     ```
     
 3. Identify horizontal transfers, generate null distribution and calculate input features using
     ```
-    snakemake -s ../scripts/analyze_hgt.smk --cores [number of cores] all
+    bash scripts/analyze_hgt.sh -p [number of cores]
     ```
 
 The results of the analysis can then be found in ...
