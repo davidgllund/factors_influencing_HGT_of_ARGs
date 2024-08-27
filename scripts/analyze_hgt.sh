@@ -10,7 +10,7 @@ done
 # Collect data on horizontal gene transfers
 snakemake -s scripts/hgt_table.smk --cores $p --use-conda --conda-frontend conda all
 
-python scripts/translate_accession_ids.py --input example_data/hgt_table.txt --index /home/dlund/index_files/ID_index.txt --output example_data/assembly_ids.txt
+python scripts/translate_accession_ids.py --input example_data/hgt_table.txt --index index_files/ID_index.txt --output example_data/assembly_ids.txt
 paste example_data/hgt_table.txt example_data/assembly_ids.txt > example_data/hgt_table2.txt
 rm example_data/assembly_ids.txt
 
