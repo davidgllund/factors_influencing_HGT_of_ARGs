@@ -4,6 +4,7 @@ from sys import argv
 import argparse
 import math
 import time
+import gzip
 
 from Bio import SeqIO
 from joblib import Parallel, delayed
@@ -35,15 +36,16 @@ def calc_kmer_distribution(genomes, k, possible_kmers, results, paths):
     kmer_distribution = pd.DataFrame(columns = possible_kmers, index = genomes_split)
 
     for j in range(len(genomes_split)):
-        host_genome = SeqIO.to_dict(SeqIO.parse(paths[genomes_split[j]], 'fasta'))
+        if genomes_split[j] in paths.keys():
+            host_genome = SeqIO.to_dict(SeqIO.parse(gzip.open(paths[genomes_split[j]], 'rt'), 'fasta'))
 
-        genome_kmers = []
-        for l in range(len(host_genome)):
-            seq_entry = host_genome[list(host_genome.keys())[l]]
-            genome_kmers.extend(aux.get_kmers(seq_entry.seq, k))
+            genome_kmers = []
+            for l in range(len(host_genome)):
+                seq_entry = host_genome[list(host_genome.keys())[l]]
+                genome_kmers.extend(aux.get_kmers(seq_entry.seq, k))
 
-        distribution = aux.get_kmer_distribution(genome_kmers, possible_kmers)
-        kmer_distribution.loc[genomes_split[j]] = list(distribution['fraction'])
+            distribution = aux.get_kmer_distribution(genome_kmers, possible_kmers)
+            kmer_distribution.loc[genomes_split[j]] = list(distribution['fraction'])
 
     results[genomes] = list(np.mean(kmer_distribution, axis=0))
 
@@ -68,7 +70,7 @@ def calc_kmer_distance(input_data, kmer_distributions, bar):
 def main():
     arguments = parse_args(argv)
     input_data = pd.read_csv(arguments.input, delimiter='\t')
-    genome_paths = aux.filepath_to_dict('/storage/dlund/HGT_inference_project/paths_taxonomy_check_ok_no_contam.txt')
+    genome_paths = aux.filepath_to_dict('index_files/genome_filepaths.txt')
     accession_ids = aux.extract_accession_ids(input_data)
     all_kmers = aux.generate_possible_kmers(arguments.k)
 
