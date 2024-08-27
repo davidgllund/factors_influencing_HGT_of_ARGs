@@ -61,7 +61,6 @@ def restructure_headerlines(taxonomy, arguments):
 def compile_taxonomy(headers, taxonomy, arguments):
     print('Compiling taxonomy')
 
-    df = pd.DataFrame(columns=['ID', 'superkingdom', 'phylum',  'class', 'order', 'family', 'genus', 'species'])
     extract = []
     bar = aux.setup_progressbar(len(headers))
 
@@ -78,7 +77,7 @@ def compile_taxonomy(headers, taxonomy, arguments):
         time.sleep(0.1)
         bar.update(i)
 
-    df = pd.DataFrame(data = extract)
+    df = pd.DataFrame(data = extract, columns=['ID', 'superkingdom', 'phylum',  'class', 'order', 'family', 'genus', 'species'])
     df.to_csv(arguments.taxonomy, sep = '\t', header = True, index = False)
 
 def phylogenetic_analysis(new_headers, arguments):
@@ -115,7 +114,7 @@ def main():
     arguments = parse_args(argv)
     
     taxonomy_index = {}
-    with open('/home/dlund/index_files/assembly_id_w_full_taxonomy.txt') as f:
+    with open('index_files/assembly_taxonomy.txt') as f:
         for line in f:
             adj = line.split('\t')
             taxonomy_index[adj[0]] = {'superkingdom': adj[1], 'phylum': adj[2],  'class': adj[3], 'order': adj[4], 'family': adj[5], 'genus': adj[6], 'species': adj[7].rstrip()}
