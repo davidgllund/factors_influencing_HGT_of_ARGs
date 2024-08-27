@@ -23,9 +23,9 @@ def parse_args(argv):
 
 def read_genome_5mer_dist(filename):
     genome_5mer_distr = {}
-    with open(filename) as f:
-        for line in f:
-            items = line.split('\t')
+    with open(filename, 'r') as f:
+        for line in f.readlines()[1:]:
+            items = line.replace('[', '').replace(']', '').split('\t')
             genome_5mer_distr[items[0]] = {'distr1': [float(x) for x in items[1].split(', ')], 'distr2': [float(x) for x in items[2].split(', ')]}
 
     return genome_5mer_distr
