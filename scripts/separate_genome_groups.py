@@ -67,9 +67,9 @@ def main():
         ids1 = split_ids(table, "Species1", i)
         ids1.to_csv('%s/%s/accession_ids.txt' %(arguments.output, subdir1), index=False, header=False)
 
-        subprocess.run('while read line; do grep "$line" data/%s.hmm/fasta_headers.txt >> %s/%s/header_subset.txt; done<%s/%s/accession_ids.txt' %(table.iloc[i,1], arguments.output, subdir1, arguments.output, subdir1), shell=True)
+        subprocess.run('while read line; do grep "$line" example_data/%s/fasta_headers.txt >> %s/%s/header_subset.txt; done<%s/%s/accession_ids.txt' %(table.iloc[i,1], arguments.output, subdir1, arguments.output, subdir1), shell=True)
 
-        extract_sequences('%s/%s/header_subset.txt' %(arguments.output, subdir1), '%s/%s/nucleotides.fna' %(arguments.output, subdir1), 'data/%s.hmm/fasta_headers.txt' %(table.iloc[i,1]), 'data/%s.hmm/predicted-orfs.fasta' %(table.iloc[i,1]))
+        extract_sequences('%s/%s/header_subset.txt' %(arguments.output, subdir1), '%s/%s/nucleotides.fna' %(arguments.output, subdir1), 'example_data/%s/fasta_headers.txt' %(table.iloc[i,1]), 'example_data/%s/predicted-orfs.fasta' %(table.iloc[i,1]))
 
         subdir2 = '-'.join([table.iloc[i,0], table.iloc[i,1], str(j), 'grp2'])
         subprocess.run('mkdir %s/%s' %(arguments.output, subdir2), shell=True)
@@ -77,9 +77,9 @@ def main():
         ids2 = split_ids(table, "Species2", i)
         ids2.to_csv('%s/%s/accession_ids.txt' %(arguments.output, subdir2), index=False, header=False)
 
-        subprocess.run('while read line; do grep "$line" data/%s.hmm/fasta_headers.txt >> %s/%s/header_subset.txt; done<%s/%s/accession_ids.txt' %(table.iloc[i,1], arguments.output, subdir2, arguments.output, subdir2), shell=True)
+        subprocess.run('while read line; do grep "$line" example_data/%s/fasta_headers.txt >> %s/%s/header_subset.txt; done<%s/%s/accession_ids.txt' %(table.iloc[i,1], arguments.output, subdir2, arguments.output, subdir2), shell=True)
 
-        extract_sequences('%s/%s/header_subset.txt' %(arguments.output, subdir2), '%s/%s/nucleotides.fna' %(arguments.output, subdir2), 'data/%s.hmm/fasta_headers.txt' %(table.iloc[i,1]), 'data/%s.hmm/predicted-orfs.fasta' %(table.iloc[i,1]))
+        extract_sequences('%s/%s/header_subset.txt' %(arguments.output, subdir2), '%s/%s/nucleotides.fna' %(arguments.output, subdir2), 'example_data/%s/fasta_headers.txt' %(table.iloc[i,1]), 'example_data/%s/predicted-orfs.fasta' %(table.iloc[i,1]))
 
 if __name__ == '__main__':
     main()
