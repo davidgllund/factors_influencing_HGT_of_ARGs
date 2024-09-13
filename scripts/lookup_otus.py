@@ -46,13 +46,13 @@ def read_mapping_file(db):
     otu_mapping = {}
 
     if db == 'emp':
-        with open('/storage/dlund/HGT_2.0/co_occurrence/emp/otu_mapping_file.txt') as f:
+        with open('auxiliary_files/otu_mapping_file_emp.txt') as f:
             for line in f:
                 (key, val) = line.split('\t')
                 otu_mapping[key] = val.strip()
 
     elif db == 'gwmc':
-        with open('/storage/dlund/HGT_2.0/co_occurrence/gwmc/otu_mapping_file.txt') as f:
+        with open('auxiliary_files/otu_mapping_file_gwmc.txt') as f:
             for line in f:
                 (key, val) = line.split('\t')
                 otu_mapping[key] = val.strip()

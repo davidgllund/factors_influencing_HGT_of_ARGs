@@ -8,9 +8,9 @@ done
 
 # GENERATE POSITIVE DATASET
 # Collect data on horizontal gene transfers
-snakemake -s scripts/hgt_table.smk --cores $p --use-conda --conda-frontend conda all
+snakemake -s scripts/hgt_table.smk --cores $p all --use-conda --conda-frontend conda 
 
-python scripts/translate_accession_ids.py --input example_data/hgt_table.txt --index index_files/ID_index.txt --output example_data/assembly_ids.txt
+python scripts/translate_accession_ids.py --input example_data/hgt_table.txt --index auxiliary_files/ID_index.txt --output example_data/assembly_ids.txt
 paste example_data/hgt_table.txt example_data/assembly_ids.txt > example_data/hgt_table2.txt
 rm example_data/assembly_ids.txt
 
@@ -30,8 +30,7 @@ python scripts/gene_genome_5mer_distance.py --input example_data/genome_5mer_dat
 
 python scripts/genome_size_difference.py --input example_data/hgt_table3.txt --output example_data/genome_size_diff.txt --num_cores $p
 
-Rscript scripts/cooccurrence.R --database emp --input example_data/hgt_table3.txt --output example_data/cooccurrence_emp.txt --num_cores $p
-Rscript scripts/cooccurrence.R --database gwmc --input example_data/hgt_table3.txt --output example_data/cooccurrence_gwmc.txt --num_cores $p
+snakemake -s scripts/calculate_cooccurrence.smk --cores $p all --use-conda --conda-frontend conda --config input="example_data/hgt_table3.txt" output_emp="example_data/cooccurrence_emp.txt" output_gwmc="example_data/cooccurrence_gwmc.txt"
 
 python scripts/gram_stain_difference.py --input example_data/hgt_table3.txt --output example_data/gram_stain_diff.txt
 
@@ -43,10 +42,9 @@ snakemake -s scripts/null_distribution.smk --cores $p --use-conda --conda-fronte
 
 python scripts/genome_size_difference.py --input example_data/null_table.txt --output example_data/genome_size_diff_null.txt --num_cores $p
 
-Rscript scripts/cooccurrence.R --database emp --input example_data/null_table.txt --output example_data/cooccurrence_emp_null.txt --num_cores $p
-Rscript scripts/cooccurrence.R --database gwmc --input example_data/null_table.txt --output example_data/cooccurrence_gwmc_null.txt --num_cores $p
+snakemake -s scripts/calculate_cooccurrence.smk --cores $p all --use-conda --conda-frontend conda --config input="example_data/null_table.txt" output_emp="example_data/cooccurrence_emp_null.txt" output_gwmc="example_data/example_data/cooccurrence_gwmc_null.txt"
 
-python scripts/gram_stain_difference.py --input example_data/null_table.txt --output example_data/gram_stain_diff_null.txt --num_cores $p
+python scripts/gram_stain_difference.py --input example_data/null_table.txt --output example_data/gram_stain_diff_null.txt
 
 paste example_data/null_table.txt example_data/genome_size_diff_null.txt example_data/gram_stain_diff_null.txt example_data/cooccurrence_emp_null.txt example_data/cooccurrence_gwmc_null.txt > null_distribution.txt
 rm example_data/null_table.txt example_data/genome_size_diff_null.txt example_data/gram_stain_diff_null.txt example_data/cooccurrence_emp_null.txt example_data/cooccurrence_gwmc_null.txt

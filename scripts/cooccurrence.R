@@ -49,11 +49,11 @@ if (is.null(opt$database) | is.null(opt$input) | is.null(opt$output)) {
 # 2 READ AND FILTER DATA
 #-------------------------------------------------------------------------------
 if (opt$database == "emp") {
-  source("/home/dlund/HGT_inference_project/code_for_publication/scripts/estimate_cooccurrence_emp.R")
+  source("scripts/estimate_cooccurrence_emp.R")
 
-  count_table <- data.frame(fread("/home/dlund/HGT_inference_project/analysis/coocurrence_data_emp/otus_gg_13_8.txt"))
+  count_table <- data.frame(fread("auxiliary_files_files/otus_gg_13_8.txt"))
 
-  metadata <- data.frame(fread("/home/dlund/HGT_inference_project/analysis/coocurrence_data_emp/emp_qiime_mapping_qc_filtered.tsv"))
+  metadata <- data.frame(fread("auxiliary_files/emp_qiime_mapping_qc_filtered.tsv"))
   metadata$sample_scientific_name[metadata$sample_scientific_name == "skin metagenome" & metadata$host_common_name_provided == "human"] <- "human skin metagenome"
   metadata$sample_scientific_name[metadata$sample_scientific_name == "upper respiratory tract metagenome" & metadata$host_common_name_provided == "human"] <- "human upper respiratory tract metagenome"
 
@@ -82,7 +82,7 @@ if (opt$database == "emp") {
   "upper respiratory tract metagenome" = "Animal",
   "human upper respiratory tract metagenome" = "Human")
 
-  environment_categories <- c("Animal", "Human", "Water", "Soil")
+  environment_categories <- c("Animal", "Human", "Soil", "Water")
 
   samples_from_env <- list()
 
@@ -91,9 +91,9 @@ if (opt$database == "emp") {
   }
 
 } else if (opt$database == "gwmc") {
-  source("/home/dlund/HGT_inference_project/code_for_publication/scripts/estimate_cooccurrence_gwmc.R")
+  source("auxiliary_files/estimate_cooccurrence_gwmc.R")
 
-  count_table <- data.frame(fread("/home/dlund/HGT_inference_project/analysis/coocurrence_data_gwmc/GWMC_16S_otutab.txt"))
+  count_table <- data.frame(fread("auxiliary_files/GWMC_16S_otutab.txt"))
 }
 
 horizontal_transfers <- data.frame(fread(opt$input))

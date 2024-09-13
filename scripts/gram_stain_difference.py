@@ -19,16 +19,16 @@ def parse_args(argv):
 
 def setup_dictionaries():
     gram_stain = {}
-    with open('/home/dlund/HGT_inference_project/analysis/analysis_files/phylum_stain.txt') as f:
+    with open('auxiliary_files/phylum_stain.txt') as f:
         for line in f:
             items = line.split('\t')
             gram_stain[items[0]] = items[1].rstrip()
 
     taxonomy = {}
-    with open('/home/dlund/HGT_inference_project/analysis/analysis_files/taxonomy_table.txt') as f:
+    with open('auxiliary_files/assembly_taxonomy.txt') as f:
         for line in f:
             items = line.split('\t')
-            taxonomy[items[2].strip()] = {'phylum': items[0], 'class': items[1]}
+            taxonomy[items[4].strip()] = {'phylum': items[2], 'class': items[3]}
 
     return gram_stain, taxonomy
 

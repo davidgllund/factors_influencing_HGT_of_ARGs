@@ -16,7 +16,7 @@ rule preprocessing:
     input:
         nucleotides = 'example_data/{dir}/predicted-orfs.fasta',
         proteins = 'example_data/{dir}/predicted-orfs-amino.fasta',
-        taxonomy = 'index_files/assembly_taxonomy.txt'
+        taxonomy = 'auxiliary_files/assembly_taxonomy.txt'
     output:
         taxonomy = 'example_data/{dir}/host_taxonomy.txt',
         fasta_w_species = temp('example_data/{dir}/args_w_species.fasta'),
