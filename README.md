@@ -1,4 +1,5 @@
 ### Introduction
+This repository contains scripts and files needed to generate the input data used to train random forest models as described in the paper "Genetic compatibility and ecological connectivity drive the dissemination of antibiotic resistance genes" by Lund et al. 2024. Alongside the scripts, example data representing predicted ARGs from two gene classes is also provided.
 
 ### Dependencies
 To run the scripts in this repository, the following software is required:
@@ -30,7 +31,7 @@ Additionally, the following software should be located in your $PATH:
 - mafft >= 7.3.10
 
 ### Tutorial
-Below is a step-by-step guide on how to generate the input data used to train random forest models as described in the paper "Genetic compatibility and ecological connectivity drive the dissemination of antibiotic resistance genes" by Lund et al. 2024.
+Below is a step-by-step guide on how to generate the data.
 
 1. Clone the repository using
     ```
