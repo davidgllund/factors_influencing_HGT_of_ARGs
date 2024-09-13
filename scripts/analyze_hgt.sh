@@ -46,5 +46,5 @@ snakemake -s scripts/calculate_cooccurrence.smk --cores $p all --use-conda --con
 
 python scripts/gram_stain_difference.py --input example_data/null_table.txt --output example_data/gram_stain_diff_null.txt
 
-paste example_data/null_table.txt example_data/genome_size_diff_null.txt example_data/gram_stain_diff_null.txt example_data/cooccurrence_emp_null.txt example_data/cooccurrence_gwmc_null.txt > null_distribution.txt
+paste example_data/null_table.txt example_data/genome_size_diff_null.txt example_data/gram_stain_diff_null.txt example_data/cooccurrence_emp_null.txt example_data/cooccurrence_gwmc_null.txt > randomized_transfers.txt
 rm example_data/null_table.txt example_data/genome_size_diff_null.txt example_data/gram_stain_diff_null.txt example_data/cooccurrence_emp_null.txt example_data/cooccurrence_gwmc_null.txt
