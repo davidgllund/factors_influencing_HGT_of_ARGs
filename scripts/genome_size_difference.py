@@ -33,8 +33,9 @@ def calc_mean_size(genomes, results, paths):
     genome_size = []
 
     for j in range(len(genomes_split)):
-        size = subprocess.check_output(' '.join(['cat', paths[genomes_split[j]], '| grep -v ">" | tr -d "\n" | wc -c']), shell=True, text=True)
-        genome_size.append(int(size.strip()))
+        if genomes_split[j] in paths.keys():
+            size = subprocess.check_output(' '.join(['zcat', paths[genomes_split[j]], '| grep -v ">" | tr -d "\n" | wc -c']), shell=True, text=True)
+            genome_size.append(int(size.strip()))
 
     results[genomes] = np.mean(genome_size)
 
@@ -56,7 +57,7 @@ def calc_genome_size_difference(input_data, mean_size, bar):
 def main():
     arguments = parse_args(argv)
     input_data = pd.read_csv(arguments.input, sep='\t')
-    genome_paths = aux.filepath_to_dict('/home/dlund/HGT_2.0/analysis_updated/paths_tax_check_ok_no_contam.txt')
+    genome_paths = aux.filepath_to_dict('auxiliary_files/genome_filepaths.txt')
     accession_ids = aux.extract_accession_ids(input_data)
 
     mean_size = {}

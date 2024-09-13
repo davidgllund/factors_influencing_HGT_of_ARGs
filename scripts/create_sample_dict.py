@@ -7,6 +7,7 @@ import glob
 import pickle
 import random
 import time
+import gzip
 
 from Bio import SeqIO
 import numpy as np
@@ -42,7 +43,7 @@ def setup_dictionaries(taxpath, genomepaths, gene_class):
         for line in f:
             items = line.split('/')
             genome_file_paths['_'.join(items[8].split('_')[0:2])] = line.rstrip()
-            gene_file_paths['_'.join(items[8].split('_')[0:2])] = '/' + '/'.join(line.split('/')[:-1]) + '/' + gene_class + '.hmm/predictedGenes/predicted-orfs.fasta'
+            gene_file_paths['_'.join(items[8].split('_')[0:2])] = '/'.join(line.split('/')[:-1]) + '/' + gene_class + '.hmm/predictedGenes/predicted-orfs.fasta'
 
     return taxonomy, genome_file_paths, gene_file_paths
 
@@ -58,7 +59,7 @@ def subset_data(cluster_data):
     return cluster_data
 
 def calc_gene_kmer_distributions(cluster_data, k, file_path_dict, possible_kmers):
-    predicted_args = aux.fasta_reader(itemgetter(*tuple(random.sample(list(cluster_data['assembly_accession']),1)))(file_path_dict))
+    predicted_args = aux.fasta_reader(itemgetter(*tuple(random.sample(list(cluster_data['assembly_accession']), 1)))(file_path_dict))
     predicted_args = predicted_args.drop(labels=list(set(predicted_args.index).difference(list(cluster_data['acc']))))
 
     gene_kmers = aux.get_kmers(predicted_args.iloc[0, 1], k)
@@ -72,7 +73,7 @@ def calc_genome_kmer_distributions(cluster_data, k, file_path_dict, possible_kme
     kmer_distributions_genome = []
 
     for j in range(len(list(cluster_data['assembly_accession']))):
-        host_genome = SeqIO.to_dict(SeqIO.parse(file_path_dict[list(cluster_data['assembly_accession'])[j]], 'fasta'))
+        host_genome = SeqIO.to_dict(SeqIO.parse(gzip.open(file_path_dict[list(cluster_data['assembly_accession'])[j]], 'rt'), 'fasta'))
 
         genome_kmers = []
         for k in range(len(host_genome)):
@@ -88,7 +89,7 @@ def calc_genome_kmer_distributions(cluster_data, k, file_path_dict, possible_kme
 
 def main():
     arguments = parse_args(argv)
-    genomepaths = '/storage/dlund/HGT_inference_project/paths_taxonomy_check_ok_no_contam.txt'
+    genomepaths = 'auxiliary_files_files/genome_filepaths.txt'
     gene_class = arguments.taxonomy.split('/')[1]
     taxonomy, genome_file_paths, gene_file_paths = setup_dictionaries(arguments.taxonomy, genomepaths, gene_class)
     clusters = glob.glob('example_data/%s/clusters/*' %(gene_class))

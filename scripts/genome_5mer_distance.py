@@ -70,7 +70,7 @@ def calc_kmer_distance(input_data, kmer_distributions, bar):
 def main():
     arguments = parse_args(argv)
     input_data = pd.read_csv(arguments.input, delimiter='\t')
-    genome_paths = aux.filepath_to_dict('index_files/genome_filepaths.txt')
+    genome_paths = aux.filepath_to_dict('auxiliary_files/genome_filepaths.txt')
     accession_ids = aux.extract_accession_ids(input_data)
     all_kmers = aux.generate_possible_kmers(arguments.k)
 

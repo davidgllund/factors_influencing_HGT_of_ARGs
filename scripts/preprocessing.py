@@ -103,18 +103,18 @@ def generate_cluster_directory(arguments):
     subprocess.run('mkdir %s' %(arguments.clusters), shell=True)
     subprocess.run('usearch -cluster_fast %s -id 1 -clusters %s/c_' %(arguments.fasta_w_species, arguments.clusters), shell=True)
     subprocess.run('for f in %s/c*; do name=$(grep ">" $f | head -1 | tr -dc "[:alnum:][,-._]"); mkdir %s/$name; grep ">" $f | tr -d ">" > %s/$name/hidden.txt; mv $f %s/$name/$name.fna; done' %(arguments.clusters, arguments.clusters, arguments.clusters, arguments.clusters), shell=True)
-    subprocess.run('for d in %s/*; do up=$(echo %s | cut -d "/" -f -2); down=$(echo $d | rev | cut -d "/" -f 1 | rev); while read line; do q=$(echo $line | cut -d "-" -f 1); grep $q $up/predicted-orfs.fasta | cut -d "_" -f -2 | tr -d ">" >> %s/$down/assembly_accessions.txt; done<$d/hidden.txt; done' %(arguments.clusters, arguments.clusters, arguments.clusters), shell=True)
+    subprocess.run('for d in %s/*; do up=$(echo %s | cut -d "/" -f -2); down=$(echo $d | rev | cut -d "/" -f 1 | rev); while read line; do q=$(echo $line | cut -d "-" -f 1); grep $q $up/predicted-orfs.fasta | head -1 | cut -d "_" -f -2 | tr -d ">" >> %s/$down/assembly_accessions.txt; done<$d/hidden.txt; done' %(arguments.clusters, arguments.clusters, arguments.clusters), shell=True)
 
 def calc_sequence_similarity(arguments):
     print('Calculating sequence similarities')
 
-    subprocess.run('blastp -query %s -db /home/dlund/index_files/card_db/card_proteins.fasta -out %s -max_target_seqs 1 -outfmt 6' %(arguments.centroids, arguments.blastout), shell=True)
+    subprocess.run('blastp -query %s -db card_db/card_proteins.fasta -out %s -max_target_seqs 1 -outfmt 6' %(arguments.centroids, arguments.blastout), shell=True)
 
 def main():
     arguments = parse_args(argv)
     
     taxonomy_index = {}
-    with open('index_files/assembly_taxonomy.txt') as f:
+    with open('auxiliary_files/assembly_taxonomy.txt') as f:
         for line in f:
             adj = line.split('\t')
             taxonomy_index[adj[0]] = {'superkingdom': adj[1], 'phylum': adj[2],  'class': adj[3], 'order': adj[4], 'family': adj[5], 'genus': adj[6], 'species': adj[7].rstrip()}

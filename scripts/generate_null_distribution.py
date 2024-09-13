@@ -64,7 +64,9 @@ def lookup_otus(item, dictionary):
     return merged_otus.strip()
 
 def measure_taxonomic_distance(order1, order2, taxonomy):
-    if taxonomy[order1]['phylum'] != taxonomy[order2]['phylum']:
+    if order1 not in taxonomy.keys() or order2 not in taxonomy.keys():
+        diff = 'NA'
+    elif taxonomy[order1]['phylum'] != taxonomy[order2]['phylum']:
         diff = 'phylum'
     elif taxonomy[order1]['phylum'] == taxonomy[order2]['phylum'] and taxonomy[order1]['class'] != taxonomy[order2]['class']:
         diff = 'class'
@@ -145,9 +147,9 @@ def calc_gene_genome_5mer_distance(dictionary, selected, data1, data2):
 
 def main():
     arguments = parse_args(argv)
-    otu_mapping_emp = read_otu_mapping('/home/dlund/HGT_inference_project/analysis/updated_taxonomy/cooccurrence/emp/otu_mapping_file.txt')
-    otu_mapping_gwmc = read_otu_mapping('/home/dlund/HGT_inference_project/analysis/updated_taxonomy/cooccurrence/gwmc/otu_mapping_file.txt')
-    taxonomy = read_taxonomy('/home/dlund/HGT_inference_project/analysis/updated_taxonomy/taxonomy_table.txt')
+    otu_mapping_emp = read_otu_mapping('auxiliary_files/otu_mapping_file_emp.txt')
+    otu_mapping_gwmc = read_otu_mapping('auxiliary_files/otu_mapping_file_gwmc.txt')
+    taxonomy = read_taxonomy('auxiliary_files/order_taxonomy.txt')
     combined_dict = combine_sample_dicts()
     df = setup_dataframe(combined_dict)
     bar = aux.setup_progressbar(int(arguments.max_number))
@@ -157,7 +159,6 @@ def main():
     for i in range(int(arguments.max_number)):
         if df.shape[0] == 0:
             break
-
         else:
             key1 = random.sample(list(df.index), 1)
             data1, order1, species1, assembly_accession1 = extract_information(key1, combined_dict)
