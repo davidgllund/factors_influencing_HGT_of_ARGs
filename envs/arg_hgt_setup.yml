@@ -1,0 +1,52 @@
+name: arg_hgt_setup
+channels:
+  - bioconda/label/cf201901
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=2_gnu
+  - biom-format=2.1.6=py36_1
+  - ca-certificates=2024.8.30=hbcca054_0
+  - cached-property=1.5.2=hd8ed1ab_1
+  - cached_property=1.5.2=pyha770c72_1
+  - certifi=2016.9.26=py36_0
+  - click=7.1.2=pyh9f0ad1d_0
+  - future=0.18.2=py36h5fab9bb_3
+  - h5py=3.1.0=nompi_py36hc1bc4f5_100
+  - hdf5=1.10.6=nompi_h3c11f04_101
+  - ld_impl_linux-64=2.40=hf3520f5_7
+  - libblas=3.9.0=20_linux64_openblas
+  - libcblas=3.9.0=20_linux64_openblas
+  - libffi=3.3=h58526e2_2
+  - libgcc=14.1.0=h77fa898_1
+  - libgcc-ng=14.1.0=h69a702a_1
+  - libgfortran-ng=7.5.0=h14aa051_20
+  - libgfortran4=7.5.0=h14aa051_20
+  - libgfortran5=14.1.0=hc5f4f2c_1
+  - libgomp=14.1.0=h77fa898_1
+  - liblapack=3.9.0=20_linux64_openblas
+  - libopenblas=0.3.25=pthreads_h413a1c8_0
+  - libstdcxx=14.1.0=hc0a3c3a_1
+  - libstdcxx-ng=14.1.0=h4852527_1
+  - ncurses=6.5=he02047a_1
+  - numpy=1.19.5=py36hfc0c790_2
+  - openssl=1.1.1w=hd590300_0
+  - pandas=1.1.5=py36h284efc9_0
+  - pip=20.0.2=py36_1
+  - python=3.6.13=h12debd9_1
+  - python-dateutil=2.8.2=pyhd8ed1ab_0
+  - python_abi=3.6=2_cp36m
+  - pytz=2023.3.post1=pyhd8ed1ab_0
+  - readline=8.2=h8228510_1
+  - scipy=1.5.3=py36h81d768a_1
+  - setuptools=49.6.0=py36h5fab9bb_3
+  - six=1.16.0=pyh6c4a22f_0
+  - sqlite=3.45.3=h5eee18b_0
+  - tk=8.6.14=h39e8969_0
+  - wheel=0.34.2=py36_0
+  - xz=5.2.6=h166bdaf_0
+  - zlib=1.2.13=h5eee18b_1
+prefix: /home/dlund/.conda/envs/arg_hgt_setup
+
