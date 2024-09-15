@@ -33,25 +33,29 @@ def setup_dictionaries():
     return gram_stain, taxonomy
 
 def measure_gram_stain(order1, order2, gram_stain, taxonomy):
-    if taxonomy[order1]['phylum'] in gram_stain.keys() and taxonomy[order2]['phylum'] in gram_stain.keys():
-        stain1 = gram_stain[taxonomy[order1]['phylum']]
-        stain2 = gram_stain[taxonomy[order2]['phylum']]
+    if order1 in taxonomy.keys() and order2 in taxonomy.keys():
+        if taxonomy[order1]['phylum'] in gram_stain.keys() and taxonomy[order2]['phylum'] in gram_stain.keys():
+            stain1 = gram_stain[taxonomy[order1]['phylum']]
+            stain2 = gram_stain[taxonomy[order2]['phylum']]
 
-        if stain1 == 'NA' or stain2 == 'NA':
-            stain_diff = 'NA'
+            if stain1 == 'NA' or stain2 == 'NA':
+                stain_diff = 'NA'
+
+            else:
+                if stain1 == 'Negative' and stain2 == 'Negative':
+                    stain_diff = 'NN'
+    
+                elif stain1 == 'Positive' and stain2 == 'Positive':
+                    stain_diff = 'PP'
+        
+                elif stain1 == 'Negative' and stain2 == 'Positive':
+                    stain_diff = 'NP'
+
+                elif stain1 == 'Positive' and stain2 == 'Negative':
+                    stain_diff ='NP'
 
         else:
-            if stain1 == 'Negative' and stain2 == 'Negative':
-                stain_diff = 'NN'
-    
-            elif stain1 == 'Positive' and stain2 == 'Positive':
-                stain_diff = 'PP'
-        
-            elif stain1 == 'Negative' and stain2 == 'Positive':
-                stain_diff = 'NP'
-
-            elif stain1 == 'Positive' and stain2 == 'Negative':
-                stain_diff ='NP'
+            stain_diff ='NA'
 
     else:
         stain_diff ='NA'
