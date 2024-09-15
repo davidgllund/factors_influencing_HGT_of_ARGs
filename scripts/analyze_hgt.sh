@@ -21,7 +21,7 @@ rm example_data/otus_* example_data/hgt_table2.txt
 
 # Calculate features of observed transfers
 python scripts/genome_5mer_distance.py --input example_data/hgt_table3.txt -k 5 --num_cores $p --output example_data/genome_5mer_data.txt
-cat example_data/genome_5mer_data.txt | cut -f 3 > example_data/genome_5mer_distance.txt
+cat example_data/genome_5mer_data.txt | cut -f 4 > example_data/genome_5mer_distance.txt
 
 python scripts/separate_genome_groups.py --input example_data/hgt_table3.txt --output example_data/separated_groups
 
@@ -42,7 +42,7 @@ snakemake -s scripts/null_distribution.smk --cores $p --use-conda --conda-fronte
 
 python scripts/genome_size_difference.py --input example_data/null_table.txt --output example_data/genome_size_diff_null.txt --num_cores $p
 
-snakemake -s scripts/calculate_cooccurrence.smk --cores $p all --use-conda --conda-frontend conda --config input="example_data/null_table.txt" output_emp="example_data/cooccurrence_emp_null.txt" output_gwmc="example_data/example_data/cooccurrence_gwmc_null.txt"
+snakemake -s scripts/calculate_cooccurrence.smk --cores $p all --use-conda --conda-frontend conda --config input="example_data/null_table.txt" output_emp="example_data/cooccurrence_emp_null.txt" output_gwmc="example_data/cooccurrence_gwmc_null.txt"
 
 python scripts/gram_stain_difference.py --input example_data/null_table.txt --output example_data/gram_stain_diff_null.txt
 
