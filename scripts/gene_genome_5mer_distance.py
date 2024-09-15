@@ -31,23 +31,23 @@ def read_genome_5mer_dist(filename):
     return genome_5mer_distr
 
 def select_gene(grps):
-    if os.path.isfile('/'.join(['separated_groups', grps[0], '5mer_distributions_gene.txt'])) and os.path.isfile('/'.join(['separated_groups', grps[1], '5mer_distributions_gene.txt'])):
+    if os.path.isfile('/'.join(['example_data', 'separated_groups', grps[0], '5mer_distributions_gene.txt'])) and os.path.isfile('/'.join(['example_data', 'separated_groups', grps[1], '5mer_distributions_gene.txt'])):
         sample = random.sample(grps, 1)
         selection = sample[0]
 
-    elif os.path.isfile('/'.join(['separated_groups', grps[0], '5mer_distributions_gene.txt'])) and not os.path.isfile('/'.join(['separated_groups', grps[1], '5mer_distributions_gene.txt'])):
+    elif os.path.isfile('/'.join(['example_data','separated_groups', grps[0], '5mer_distributions_gene.txt'])) and not os.path.isfile('/'.join(['example_data', 'separated_groups', grps[1], '5mer_distributions_gene.txt'])):
         selection = grps[0]
 
-    elif not os.path.isfile('/'.join(['separated_groups', grps[0], '5mer_distributions_gene.txt'])) and os.path.isfile('/'.join([grps[1], '5mer_distributions_gene.txt'])):
+    elif not os.path.isfile('/'.join(['example_data', 'separated_groups', grps[0], '5mer_distributions_gene.txt'])) and os.path.isfile('/'.join(['example_data', 'separated_groups', grps[1], '5mer_distributions_gene.txt'])):
         selection = grps[1]
     
-    elif not os.path.isfile('/'.join(['separated_groups', grps[0], '5mer_distributions_gene.txt'])) and not os.path.isfile('/'.join(['separated_groups', grps[1], '5mer_distributions_gene.txt'])):
+    elif not os.path.isfile('/'.join(['example_data', 'separated_groups', grps[0], '5mer_distributions_gene.txt'])) and not os.path.isfile('/'.join(['example_data', 'separated_groups', grps[1], '5mer_distributions_gene.txt'])):
         selection = 'NA'
 
     return selection
 
 def calc_gene_genome_distance(selection, genome_5mer_distr, key):
-    with open('/'.join(['separated_groups', selection, '5mer_distributions_gene.txt']), 'r') as file:
+    with open('/'.join(['example_data', 'separated_groups', selection, '5mer_distributions_gene.txt']), 'r') as file:
         gene_list = [x.strip() for x in file.readlines()]
 
     gene_distr = [float(x) for x in gene_list[0].split("\t")]
@@ -61,7 +61,7 @@ def calc_gene_genome_distance(selection, genome_5mer_distr, key):
 def main():
     arguments = parse_args(argv)
     genome_5mer_distr = read_genome_5mer_dist(arguments.input)
-    gene_genome_dist = []
+    gene_genome_dist = ['Gene_genome_5mer_distance']
 
     bar = aux.setup_progressbar(len(genome_5mer_distr.keys()))
 
