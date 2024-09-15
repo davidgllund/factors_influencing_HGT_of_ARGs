@@ -5,7 +5,7 @@ rule all:
 
 rule cooccurrence_emp:
     input:
-        config["input_emp"]
+        config["input"]
     output:
         config["output_emp"]
     conda:
@@ -17,7 +17,7 @@ rule cooccurrence_emp:
 
 rule cooccurrence_gwmc:
     input:
-        config["input_gwmc"]
+        config["input"]
     output:
         config["output_gwmc"]
     conda:
