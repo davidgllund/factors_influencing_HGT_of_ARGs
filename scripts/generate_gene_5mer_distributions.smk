@@ -11,7 +11,7 @@ from Bio import SeqIO
 import numpy as np
 import pandas as pd
 
-DIR, = glob_wildcards('separated_groups/{dir}/nucleotides.fna')
+DIR, = glob_wildcards('example_data/separated_groups/{dir}/nucleotides.fna')
 
 #-------------------------------------------------------------------------------
 # 1 FUNCTIONS
@@ -37,13 +37,13 @@ def get_possible_kmers(k):
 #-------------------------------------------------------------------------------
 rule all:
     input:
-        expand('separated_groups/{dir}/5mer_distributions_gene.txt', dir=DIR)
+        expand('example_data/separated_groups/{dir}/5mer_distributions_gene.txt', dir=DIR)
 
 rule cluster_genes:
     input:
-        'separated_groups/{dir}/nucleotides.fna'
+        'example_data/separated_groups/{dir}/nucleotides.fna'
     output:
-        temp('separated_groups/{dir}/nucleotides_unique.fna')
+        temp('example_data/separated_groups/{dir}/nucleotides_unique.fna')
     shell:
         '''
         usearch -cluster_fast {input} -id 1 -centroids {output}
@@ -51,9 +51,9 @@ rule cluster_genes:
 
 rule generate_kmer_distributions:
     input:
-        'separated_groups/{dir}/nucleotides_unique.fna'
+        'example_data/separated_groups/{dir}/nucleotides_unique.fna'
     output:
-        'separated_groups/{dir}/5mer_distributions_gene.txt'
+        'example_data/separated_groups/{dir}/5mer_distributions_gene.txt'
     run:
         genes = SeqIO.to_dict(SeqIO.parse(input[0], 'fasta'))
         k = 5
