@@ -8,6 +8,7 @@ import pickle
 import random
 import time
 import gzip
+import subprocess
 
 from Bio import SeqIO
 import numpy as np
@@ -28,24 +29,21 @@ def parse_args(argv):
     
     return arguments
 
-def setup_dictionaries(taxpath, genomepaths, gene_class):
-    taxonomy = {}
-    
+def setup_dictionaries(taxpath, genomepaths):
+    taxonomy = {}    
     with open(taxpath) as f:
         for line in islice(f, 1, None):
             items = line.split('\t')
             taxonomy[items[0]] = {'phylum': items[2], 'class': items[3], 'order': items[4], 'family': items[5], 'genus': items[6], 'species': items[7].rstrip()}
 
     genome_file_paths = {}
-    gene_file_paths = {}
 
     with open(genomepaths) as f:
         for line in f:
             items = line.split('/')
-            genome_file_paths['_'.join(items[8].split('_')[0:2])] = line.rstrip()
-            gene_file_paths['_'.join(items[8].split('_')[0:2])] = '/'.join(line.split('/')[:-1]) + '/' + gene_class + '.hmm/predictedGenes/predicted-orfs.fasta'
+            genome_file_paths['_'.join(items[1].split('_')[0:2])] = line.rstrip()
 
-    return taxonomy, genome_file_paths, gene_file_paths
+    return taxonomy, genome_file_paths
 
 def subset_data(cluster_data):
     if len(set(list(cluster_data['order']))) > 1:
@@ -58,14 +56,20 @@ def subset_data(cluster_data):
 
     return cluster_data
 
-def calc_gene_kmer_distributions(cluster_data, k, file_path_dict, possible_kmers):
-    predicted_args = aux.fasta_reader(itemgetter(*tuple(random.sample(list(cluster_data['assembly_accession']), 1)))(file_path_dict))
-    predicted_args = predicted_args.drop(labels=list(set(predicted_args.index).difference(list(cluster_data['acc']))))
+def calc_gene_kmer_distributions(cluster_data, k, possible_kmers, gene_class):
+    for i in range(cluster_data.shape[0]):
+        query = cluster_data.iloc[i, :]['species'].split('-')[0]
+        subprocess.run('grep "%s" example_data/%s/predicted-orfs.fasta >> %s' %(query, gene_class, ''.join([cluster_data.iloc[0, :]['species'], '_queries.txt'])), shell=True)
 
-    gene_kmers = aux.get_kmers(predicted_args.iloc[0, 1], k)
+    predicted_args = aux.fasta_reader('/'.join(['example_data', gene_class, 'predicted-orfs.fasta']))
+    predicted_args_subset = aux.subset_fasta(predicted_args, ''.join([cluster_data.iloc[0, :]['species'], '_queries.txt']))
+
+    gene_kmers = aux.get_kmers(predicted_args_subset.iloc[0, 1], k)
     distribution = aux.get_kmer_distribution(gene_kmers, possible_kmers)
 
     results = pd.DataFrame(data=list(distribution['fraction']))
+
+    subprocess.run('rm %s' %(''.join([cluster_data.iloc[0, :]['species'], '_queries.txt'])), shell=True)
 
     return results
 
@@ -73,15 +77,19 @@ def calc_genome_kmer_distributions(cluster_data, k, file_path_dict, possible_kme
     kmer_distributions_genome = []
 
     for j in range(len(list(cluster_data['assembly_accession']))):
-        host_genome = SeqIO.to_dict(SeqIO.parse(gzip.open(file_path_dict[list(cluster_data['assembly_accession'])[j]], 'rt'), 'fasta'))
+        if list(cluster_data['assembly_accession'])[j] in file_path_dict.keys():
+            host_genome = SeqIO.to_dict(SeqIO.parse(gzip.open(file_path_dict[list(cluster_data['assembly_accession'])[j]], 'rt'), 'fasta'))
 
-        genome_kmers = []
-        for k in range(len(host_genome)):
-            seq_entry = host_genome[list(host_genome.keys())[k]]
-            genome_kmers.extend(aux.get_kmers(seq_entry.seq, 5))
+            genome_kmers = []
+            for k in range(len(host_genome)):
+                seq_entry = host_genome[list(host_genome.keys())[k]]
+                genome_kmers.extend(aux.get_kmers(seq_entry.seq, 5))
 
-        distribution = aux.get_kmer_distribution(genome_kmers, possible_kmers)
-        kmer_distributions_genome.append(list(distribution['fraction']))
+            distribution = aux.get_kmer_distribution(genome_kmers, possible_kmers)
+            kmer_distributions_genome.append(list(distribution['fraction']))
+        
+        else:
+            kmer_distributions_genome.append(list(np.repeat(np.nan, len(possible_kmers))))
 
     results = pd.DataFrame(data=kmer_distributions_genome)
 
@@ -89,9 +97,9 @@ def calc_genome_kmer_distributions(cluster_data, k, file_path_dict, possible_kme
 
 def main():
     arguments = parse_args(argv)
-    genomepaths = 'auxiliary_files_files/genome_filepaths.txt'
+    genomepaths = 'auxiliary_files/genome_filepaths.txt'
     gene_class = arguments.taxonomy.split('/')[1]
-    taxonomy, genome_file_paths, gene_file_paths = setup_dictionaries(arguments.taxonomy, genomepaths, gene_class)
+    taxonomy, genome_file_paths = setup_dictionaries(arguments.taxonomy, genomepaths)
     clusters = glob.glob('example_data/%s/clusters/*' %(gene_class))
     all_kmers = aux.generate_possible_kmers(5)
 
@@ -119,7 +127,7 @@ def main():
             cluster_df = pd.DataFrame({'assembly_accession': assembly_accession, 'acc': [x.split('-')[0] for x in species], 'order': [taxonomy.get(x).get('order') for x in species], 'species': species}, index=assembly_accession)
             cluster_df = subset_data(cluster_df)
 
-            gene_kmer_distr = calc_gene_kmer_distributions(cluster_df, 5, gene_file_paths, all_kmers)
+            gene_kmer_distr = calc_gene_kmer_distributions(cluster_df, 5, all_kmers, gene_class)
             genome_kmer_distr = calc_genome_kmer_distributions(cluster_df, 5, genome_file_paths, all_kmers)
 
             sample_dict[key] = {'gene_class': gene_class, 'order': list(cluster_df['order']), 'assembly_accessions': list(cluster_df['assembly_accession']), 'species': list(cluster_df['species']), '5mer_distribution_genome': list(np.mean(genome_kmer_distr, axis=0)), '5mer_distribution_gene': gene_kmer_distr}
