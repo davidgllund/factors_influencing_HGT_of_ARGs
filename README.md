@@ -1,5 +1,5 @@
 ### Introduction
-This repository contains scripts and files needed to generate the input data used to train random forest models as described in the paper "Genetic compatibility and ecological connectivity drive the dissemination of antibiotic resistance genes" by Lund et al. 2024. Alongside the scripts, example data representing predicted ARGs from two gene classes is also provided.
+This repository contains scripts and files needed to generate the input data used to train random forest models as described in the paper "Genetic compatibility and ecological connectivity drive the dissemination of antibiotic resistance genes" by Lund et al. 2024. Alongside the scripts, example data representing predicted ARGs from two gene classes is also provided, alongside .yml files with which to create conda environments with the required software. 
 
 ### Dependencies
 To run the scripts in this repository, the following software is required:
@@ -23,12 +23,14 @@ To run the scripts in this repository, the following software is required:
     - taxonomizr >= 0.10.2
     - tidyverse >= 2.0.0
     - viridis >= 0.6.5
-
-Additionally, the following software should be located in your $PATH:
 - biom-format >= 2.1.6
 - BLAST >= 2.10.1
 - FastTree >= 2.1.9
 - mafft >= 7.3.10
+
+Files that can be used to create conda environments with the required software installed can be found in /envs.
+
+Additionally, please note that running the example code will result in the downloading and generation of several large files. As such, please make sure that you have at least 12GB of free disk space when executing the code to avoid any issues.
 
 ### Tutorial
 Below is a step-by-step guide on how to generate the data.
