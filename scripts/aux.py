@@ -73,6 +73,16 @@ def fasta_reader(filename):
     
     return fasta_df
 
+def subset_fasta(fasta, headerfile):
+    with open(headerfile, 'r') as f:
+        header_subset = [x.replace('>', '').strip() for x in f.readlines()]
+    
+    header_subset2 = ['_'.join(x.split('_')[-2:]) for x in header_subset]
+
+    fasta_subset = fasta.loc[header_subset2]
+
+    return fasta_subset
+
 def get_kmer_distribution(kmers, possible_kmers):
     kmers_counted = Counter(kmers)
     dist_list = []
