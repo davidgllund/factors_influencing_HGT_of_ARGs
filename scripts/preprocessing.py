@@ -50,7 +50,11 @@ def restructure_headerlines(taxonomy, arguments):
         assembly_accno = '_'.join(headers[i].split('_')[0:2])
         contig_accno = '_'.join(headers[i].split('-')[-1].split('_')[1:]).rstrip()
 
-        new_head = '-'.join([contig_accno, taxonomy[assembly_accno]['species'].replace(' ', '_')])
+        if assembly_accno in taxonomy.keys():
+            new_head = '-'.join([contig_accno, taxonomy[assembly_accno]['species'].replace(' ', '_')])
+        else:
+            new_head = '-'.join([contig_accno, 'NA'])
+
         new_headers.append(new_head)
 
         time.sleep(0.1)
@@ -68,11 +72,16 @@ def compile_taxonomy(headers, taxonomy, arguments):
         assembly_accno = '_'.join(headers[i].split('_')[0:2])
         contig_accno = '_'.join(headers[i].split('-')[-1].split('_')[1:]).rstrip()
 
-        new_head = '-'.join([contig_accno, taxonomy[assembly_accno]['species'].replace(' ', '_')])
+        if assembly_accno in taxonomy.keys():
+            new_head = '-'.join([contig_accno, taxonomy[assembly_accno]['species'].replace(' ', '_')])
 
-        extract.append([new_head, taxonomy[assembly_accno]['superkingdom'], taxonomy[assembly_accno]['phylum'],  
-                        taxonomy[assembly_accno]['class'], taxonomy[assembly_accno]['order'], taxonomy[assembly_accno]['family'], 
-                        taxonomy[assembly_accno]['genus'], taxonomy[assembly_accno]['species']])
+            extract.append([new_head, taxonomy[assembly_accno]['superkingdom'], taxonomy[assembly_accno]['phylum'],  
+                            taxonomy[assembly_accno]['class'], taxonomy[assembly_accno]['order'], taxonomy[assembly_accno]['family'], 
+                            taxonomy[assembly_accno]['genus'], taxonomy[assembly_accno]['species']])
+        else:
+            new_head = '-'.join([contig_accno, 'NA'])
+
+            extract.append([new_head, 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'])
     
         time.sleep(0.1)
         bar.update(i)
@@ -108,7 +117,7 @@ def generate_cluster_directory(arguments):
 def calc_sequence_similarity(arguments):
     print('Calculating sequence similarities')
 
-    subprocess.run('blastp -query %s -db card_db/card_proteins.fasta -out %s -max_target_seqs 1 -outfmt 6' %(arguments.centroids, arguments.blastout), shell=True)
+    subprocess.run('blastp -query %s -db auxiliary_files/card_db/card_proteins.fasta -out %s -max_target_seqs 1 -outfmt 6' %(arguments.centroids, arguments.blastout), shell=True)
 
 def main():
     arguments = parse_args(argv)
