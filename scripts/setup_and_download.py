@@ -7,7 +7,7 @@ def download_genomes():
     subprocess.run('mkdir genomes', shell=True)
     subprocess.run('while read line; do wget $line; done<auxiliary_files/genomes_to_download.txt', shell=True)
     subprocess.run('mv *genomic.fna.gz genomes/', shell=True)
-    subprocess.run('ls -d -1 genomes/ > auxiliary_files/genome_filepaths.txt', shell=True)
+    subprocess.run('ls -d -1 genomes/* > auxiliary_files/genome_filepaths.txt', shell=True)
 
 def download_metagenomes():
     subprocess.run('wget ftp://ftp.microbio.me/emp/release1/mapping_files/emp_qiime_mapping_qc_filtered.tsv', shell=True)
