@@ -51,7 +51,7 @@ if (is.null(opt$database) | is.null(opt$input) | is.null(opt$output)) {
 if (opt$database == "emp") {
   source("scripts/estimate_cooccurrence_emp.R")
 
-  count_table <- data.frame(fread("auxiliary_files_files/otus_gg_13_8.txt"))
+  count_table <- data.frame(fread("auxiliary_files/otus_gg_13_8.txt"))
 
   metadata <- data.frame(fread("auxiliary_files/emp_qiime_mapping_qc_filtered.tsv"))
   metadata$sample_scientific_name[metadata$sample_scientific_name == "skin metagenome" & metadata$host_common_name_provided == "human"] <- "human skin metagenome"
@@ -91,7 +91,7 @@ if (opt$database == "emp") {
   }
 
 } else if (opt$database == "gwmc") {
-  source("auxiliary_files/estimate_cooccurrence_gwmc.R")
+  source("scripts/estimate_cooccurrence_gwmc.R")
 
   count_table <- data.frame(fread("auxiliary_files/GWMC_16S_otutab.txt"))
 }
