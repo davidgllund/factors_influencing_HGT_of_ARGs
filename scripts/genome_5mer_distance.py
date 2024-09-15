@@ -65,6 +65,17 @@ def calc_kmer_distance(input_data, kmer_distributions, bar):
         bar.update(i)
     
     results = pd.DataFrame({'Kmer_distribution1': kmer_distribution1, 'Kmer_distribution2': kmer_distribution2, 'Genome_kmer_distance': genome_kmer_distance})
+    event_ids = []
+    for i in range(input_data.shape[0]):
+        if '-'.join([input_data.loc[i, 'Node'], input_data.loc[i, 'Gene class'], '1']) not in event_ids:
+            j = 1
+        else:
+            j += 1
+
+        event_ids.append('-'.join([input_data.loc[i, 'Node'], input_data.loc[i, 'Gene class'], str(j)]))
+
+    results.index = event_ids
+
     return results
 
 def main():
@@ -83,7 +94,7 @@ def main():
     print('Calculating kmer distance')
     bar = aux.setup_progressbar(input_data.shape[0])
     results = calc_kmer_distance(input_data, mean_kmer_distributions, bar)
-    results.to_csv(arguments.output, sep = '\t', header = True, index = False)
+    results.to_csv(arguments.output, sep = '\t', header = True, index = True)
 
 if __name__ == '__main__':
     main()
