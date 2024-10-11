@@ -28,12 +28,10 @@ To run the scripts in this repository, the following software is required:
 - FastTree >= 2.1.9
 - mafft >= 7.3.10
 
-Files that can be used to create conda environments with the required software installed can be found in /envs.
-
-Additionally, please note that running the example code will result in the downloading and generation of several large files. As such, please make sure that you have at least 12GB of free disk space when executing the code to avoid any issues.
+Files that can be used to create conda environments with the required software installed can be found in /envs. The installation and setup of the conda environments is expected to take around 30 minutes on a "normal" computer.
 
 ### Tutorial
-Below is a step-by-step guide on how to generate the data.
+Below is a step-by-step guide on how to generate the data. Please note that the pipeline is designed to run on Unix based servers. Additionally, please note that running the example code will result in the downloading and generation of several large files. As such, please make sure that you have at least 12GB of free disk space when executing the code to avoid any issues. Finally, please note that this is a large and demanding analysis, which is expected to take around twelve hours to complete, depending on the number of cores used.
 
 1. Clone the repository using
     ```
@@ -42,6 +40,7 @@ Below is a step-by-step guide on how to generate the data.
 
 2. Setup conda environments
     ```
+    cd factors_influencing_HGT_of_ARGs
     conda env create -f envs/arg_hgt_setup.yml
     conda env create -f envs/arg_hgt_python.yml
     conda env create -f envs/arg_hgt_R.yml
@@ -58,6 +57,35 @@ Below is a step-by-step guide on how to generate the data.
     bash scripts/analyze_hgt.sh -p [number of cores]
     ```
 
-The results of the analysis can then be found in two files:
-- observed_horizontal_transfers.txt
-- randomized_transfers.txt
+#### Output files
+After running the example, the results of the analysis can be found in two files:
+- **observed_horizontal_transfers.txt**
+- **randomized_transfers.txt**
+
+These two tables represent the positive and negative datasets respectively, where each row represents an observation. For each observation, the folowing features are recorded:
+- **Node:** Position in the phylogenetic tree at which the transfer was observed.
+- **Gene class:** Class of resistance gene which the observation represents (nomenclature taken from fARGene [1]).
+- **Antibitoic class:** Class of antibiotics which the corresponding ARG confers resistance to.
+- **Taxonomic difference:** Level of taxonomic difference between the two orders included in the observation (order, class, or phylum).
+- **Order1:** The first bacterial order involved in the observation.
+- **Order2:** The second bacterial order involved in the observation.
+- **Species1:** Species from the first bacterial order involved in the observation.
+- **Species2:** Species from the second bacterial order involved in the observation.
+- **AssemblyAccession1:** Assembly accessions of the geomes from the first bacterial order involved in the observation.
+- **AssemblyAccession2:** Assembly accessions of the geomes from the second bacterial order involved in the observation.
+- **Matched_OTU_EMP1:** OTU(s) from the Earth Microbiome Project mapping to the genomes from order 1.
+- **Matched_OTU_EMP2:** OTU(s) from the Earth Microbiome Project mapping to the genomes from order 2.
+- **Matched_OTU_GWMC1:** OTU(s) from the Global Water Microbiome Consortium matching to the genomes from order 1.
+- **Matched_OTU_GWMC2:** OTU(s) from the Global Water Microbiome Consortium matching to the genomes from order 2.
+- **Genome_5mer_distance:** Euclidean distance between the mean 5mer distributions of the genomes from different orders.
+- **Gene_genome_5mer_distance:** Maximial observed euclidean distance between a the 5mer distribution of a random ARG included in the observation and the mean 5mer distribution of the genomes from order 1 and order 2.
+- **Genome_size_difference:** Proportional difference in mean size between the genomes from different orders.
+- **Gram_stain_difference:** Gram staining properties of order 1 and order 2. Encoded as NN (both gram negative), PP (both gram positive), or NP (different gram staining).
+- **Animal:** Estimated co-occurrence of the genomes from different orders in animal microbiomes.
+- **Human:** Estimated co-occurrence of the genomes from different orders in human microbiomes.
+- **Soil:** Estimated co-occurrence of the genomes from different orders in soil microbiomes.
+- **Water:** Estimated co-occurrence of the genomes from different orders in water microbiomes.
+- **Wastewater:** Estimated co-occurrence of the genomes from different orders in wastewater microbiomes.
+
+#### References
+1. Berglund F, Österlund T, Boulund F, Marathe NP, Larsson DJ, Kristiansson E. Identification and reconstruction of novel antibiotic resistance genes from metagenomes. Microbiome. 2019 Dec;7:1-4.
