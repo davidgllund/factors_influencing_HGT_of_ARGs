@@ -43,7 +43,6 @@ Below is a step-by-step guide on how to generate the data. Please note that the 
     cd factors_influencing_HGT_of_ARGs
     conda env create -f envs/arg_hgt_setup.yml
     conda env create -f envs/arg_hgt_python.yml
-    conda env create -f envs/arg_hgt_R.yml
     ```
 3. Download bacterial genomes and metagenomes, and setup auxiliary files
    ```
