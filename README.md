@@ -31,7 +31,7 @@ To run the scripts in this repository, the following software is required:
 Files that can be used to create conda environments with the required software installed can be found in /envs. The installation and setup of the conda environments is expected to take around 30 minutes on a "normal" computer.
 
 ### Tutorial
-Below is a step-by-step guide on how to generate the data. Please note that the pipeline is designed to run on Unix based servers. Additionally, please note that running the example code will result in the downloading and generation of several large files. As such, please make sure that you have at least 12GB of free disk space when executing the code to avoid any issues. Finally, please note that this is a large and demanding analysis, which is expected to take around twelve hours to complete, depending on the number of cores used.
+Below is a step-by-step guide on how to generate the data. Please note that the pipeline is designed to run on Unix based servers. Additionally, please note that running the example code will result in the downloading and generation of several large files. As such, please make sure that you have at least 12GB of free disk space when executing the code to avoid any issues. Finally, please note that this is a large and demanding analysis, which is expected to take around four hours to complete, depending on the number of cores used.
 
 1. Clone the repository using
     ```
