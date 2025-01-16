@@ -1,8 +1,12 @@
-### Introduction
-This repository contains scripts and files needed to generate the input data used to train random forest models as described in the paper "Genetic compatibility and ecological connectivity drive the dissemination of antibiotic resistance genes" by Lund et al. 2024. Alongside the scripts, example data representing predicted ARGs from two gene classes is also provided, alongside .yml files with which to create conda environments with the required software. 
+## Introduction
+This repository contains scripts and files needed to generate the input data used to train random forest models as described in the paper "Genetic compatibility and ecological connectivity drive the dissemination of antibiotic resistance genes" by Lund et al. 2025. Alongside the scripts, example data representing predicted ARGs from two gene classes is also provided, alongside .yml files with which to create conda environments with the required software. 
+
+Additionally, two scripts are provided to reproduce all of the results presented in the paper, including main and supplementary figures. The files necessary to reproduce the results can be found in /data_for_figures.
+
+## Generation of input data for random forest models
 
 ### Dependencies
-To run the scripts in this repository, the following software is required:
+To run the scripts for generating input data, the following software is required:
 - Python >= 3.12.1
     - biopython >= 1.83
     - joblib >= 1.2.0
@@ -13,7 +17,7 @@ To run the scripts in this repository, the following software is required:
 - Snakemake >= 5.32.0
 - R >= 4.2.0
     - ape >= 5.7.1
-    - caret >= 6.0_94
+    - caret >= 6.0-94
     - data.table >= 1.14.10
     - ggtree >= 3.10.0
     - gtools >= 3.9.4
@@ -85,6 +89,28 @@ These two tables represent the positive and negative datasets respectively, wher
 - **Soil:** Estimated co-occurrence of the genomes from different orders in soil microbiomes.
 - **Water:** Estimated co-occurrence of the genomes from different orders in water microbiomes.
 - **Wastewater:** Estimated co-occurrence of the genomes from different orders in wastewater microbiomes.
+
+## Genration of figures
+The code required to reproduce the main and supplementary figures presented in Lund et al. 2025 can be found in the scripts 'generate_main_figures.R' and 'generate_supplementary_figues.R' respectively. Both scripts can be found in the /scripts directory, and all of the files that are called on by the scripts can be found in the /data_for_figures directory.
+
+### Dependencies
+To run the scripts for reproducing the results from the paper, the following software is needed:
+- R >= 4.2.0
+    - aplot >= 0.2.3
+    - caret >= 6.0-94
+    - corrplot >= 0.92
+    - data.table >= 1.15.4
+    - GGally >= 2.2.1
+    - igraph >= 2.0.3
+    - patchwork >= 1.2.0
+    - pdp >= 0.8.1
+    - pROC >= 1.18.5
+    - randomForest >= 4.7-11
+    - readxl >= 1.4.3
+    - rfPermute >= 2.5.2
+    - rfUtilities >= 2.1-5
+    - tidyverse >= 2.0.0
+    - vegan >= 2.6-6.1
 
 #### References
 1. Berglund F, Österlund T, Boulund F, Marathe NP, Larsson DJ, Kristiansson E. Identification and reconstruction of novel antibiotic resistance genes from metagenomes. Microbiome. 2019 Dec;7:1-4.
