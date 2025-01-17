@@ -2,7 +2,7 @@
 This repository contains scripts and files needed to generate the input data used to train random forest models as described in the paper "Genetic compatibility and ecological connectivity drive the dissemination of antibiotic resistance genes" by Lund et al. 2025. Alongside the scripts, example data representing predicted ARGs from two gene classes is also provided, alongside .yml files with which to create conda environments with the required software. 
 
 ### Dependencies
-To run the scripts for generating input data, the following software is required:
+To run the scripts in this repository, the following software is required:
 - Python >= 3.12.1
     - biopython >= 1.83
     - joblib >= 1.2.0
